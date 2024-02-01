@@ -1,3 +1,7 @@
+# Volve (volunteer management platform)
+- [project planning](https://www.notion.so/hack-for-good-2024-127e3ecd490245a6bddab08eb4bf4902#8a4c92740af04493961cc213ff90e7b2)
+
+
 # Create T3 App
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
