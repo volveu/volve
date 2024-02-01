@@ -4,12 +4,15 @@ import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
+  AuthOptions,
 } from "next-auth";
 import bcrypt from "bcrypt";
 
 import { env } from "~/env";
 import { db } from "~/server/db";
 import CredentialsProvider from "next-auth/providers/credentials";
+import type { User } from "@prisma/client";
+import { UserRole } from "types";
 
 export async function hashPassword(password: string) {
   const NUM_OF_SALT_ROUNDS = 10;
@@ -25,7 +28,6 @@ export async function hashPassword(password: string) {
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
 
-type UserRole = "USER" | "ADMIN";
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
@@ -48,16 +50,8 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXT_AUTH_SECRET,
-  callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
-  },
   adapter: PrismaAdapter(db),
+  session: { strategy: "jwt", maxAge: 24 * 60 * 60 }, // 1 day
   providers: [
     /**
      * ...add more providers here.
@@ -97,9 +91,10 @@ export const authOptions: NextAuthOptions = {
 
         if (!user?.password) return null;
         if (user && bcrypt.compareSync(password, user.password)) {
-          // Any object returned will be saved in `user` property of the JWT
+          // Any object returned will be saved in the database
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { password: _, ...userData } = user;
+          // return { user: userData};
           return userData;
         }
 
@@ -111,6 +106,46 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/signin",
+    verifyRequest: "/verify-request",
+    signOut: "/signout",
+  },
+  callbacks: {
+    jwt: ({ token, user, trigger, session }) => {
+      // user is ONLY provided on first time on sign in
+      // https://next-auth.js.org/configuration/callbacks#jwt-callback
+      //
+      // session is data sent from client using useSession().update()
+      if (trigger === "update") {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const updatedToken = { ...token, ...session };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return updatedToken;
+      }
+
+      const newToken = { ...token, ...user };
+      return newToken;
+    },
+    session: ({ session, token }) => {
+      if (token !== null && token.id !== null) {
+        const newUser = {
+          ...session.user,
+          ...token,
+          id: token.id as string,
+        };
+
+        session = { ...session, user: newUser };
+      }
+      return session;
+    },
+    // async session({ session, user }) {
+    //   session.user = user as User;
+    //   return session;
+    // },
+  },
+  events: {
+    async signIn({ user }) {
+      console.log({ user }, "signed in");
+    },
   },
 };
 
