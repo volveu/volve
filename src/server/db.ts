@@ -1,16 +1,17 @@
+// import { PrismaClient as PrismaClientPostgres} from "@prisma-db-psql/client";
 import { PrismaClient } from "@prisma/client";
 
 import { env } from "~/env";
+const { NODE_ENV } = env;
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: PrismaClient;
 };
 
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log:
-      env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    log: NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
   });
 
-if (env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+if (NODE_ENV !== "production") globalForPrisma.prisma = db;

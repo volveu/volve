@@ -1,6 +1,11 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+enum Role {
+    USER
+    ADMIN
+}
+
 datasource db {
     provider     = "mysql"
     url          = env("DATABASE_URL")
@@ -44,6 +49,8 @@ model Account {
 
 model Session {
     id           String   @id @default(cuid())
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
     sessionToken String   @unique
     userId       String
     expires      DateTime
@@ -56,6 +63,8 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
+    password      String?
+    role          Role      @default(USER)
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
