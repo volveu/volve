@@ -8,7 +8,7 @@ import type {
 // import { PeerPrepRectLogo } from "~/assets/logo";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import LoginWithCredentials from "~/components/LoginWithCredentials";
 import { LoadingPage } from "~/components/Loading";
 import { VolveLogo } from "~/assets/volve-logo";
@@ -19,9 +19,6 @@ const SignIn = ({ providers }: SignInProps) => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    toast.error("test");
-  }, []);
   const onError = (e: Error) => {
     toast.error(`Failed to sign in: \n${e.message}`);
   };
@@ -38,7 +35,8 @@ const SignIn = ({ providers }: SignInProps) => {
       </>
     );
   }
-  if (session && session.user) {
+
+  if (session?.user) {
     return (
       <>
         <Head>
@@ -51,7 +49,7 @@ const SignIn = ({ providers }: SignInProps) => {
               To access the SignIn page,{" "}
               <button
                 className="rounded-md px-1 text-neutral-400 underline"
-                onClick={() => void signOut({ callbackUrl: "/sign-in" })}
+                onClick={() => void signOut({ callbackUrl: "/signin" })}
               >
                 log out
               </button>
@@ -71,7 +69,6 @@ const SignIn = ({ providers }: SignInProps) => {
         <div className="mx-auto flex flex-col items-center justify-center px-6 py-8 md:h-screen lg:py-0">
           <div className="flex w-full flex-col rounded-lg bg-white shadow sm:max-w-md md:mt-0 xl:p-0 dark:border dark:border-gray-700 dark:bg-gray-800">
             <div className="py-3"></div>
-            {/* <PeerPrepRectLogo height={200} /> */}
             <div className="space-y-4 p-6 sm:p-8 md:space-y-6">
               <VolveLogo height={50} />
               <div className="rounded-md">

@@ -16,7 +16,7 @@ export const VolveLogo = (props: CustomSVGProps) => {
       height="100"
       width="100"
     >
-      <g id="SVGRepo_bgCarrier" stroke-width="0">
+      <g id="SVGRepo_bgCarrier" strokeWidth="0">
         <rect
           x="-10.8"
           y="-10.8"
@@ -28,8 +28,8 @@ export const VolveLogo = (props: CustomSVGProps) => {
       </g>
       <g
         id="SVGRepo_tracerCarrier"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       ></g>
       <g id="SVGRepo_iconCarrier">
         <title>V icon</title>
