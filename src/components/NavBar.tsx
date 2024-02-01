@@ -40,7 +40,7 @@ const NavBar = () => {
           </Link>
           {!session && (
             <Link
-              href="/sign-up"
+              href="/signup"
               onClick={closeDropdown}
               className="flex flex-[1_0_0%] items-center justify-center whitespace-nowrap rounded-md bg-white/10 px-4 font-bold text-white no-underline transition hover:bg-white/20"
             >
@@ -49,7 +49,7 @@ const NavBar = () => {
           )}
           {!session && (
             <Link
-              href="/sign-in"
+              href="/signin"
               onClick={closeDropdown}
               className="flex flex-[1_0_0%] items-center justify-center whitespace-nowrap rounded-md bg-white/10 px-4 font-bold text-white no-underline transition hover:bg-white/20"
             >
