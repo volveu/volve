@@ -68,6 +68,9 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+
+    volunteer     Volunteer?
+    administrator Administrator?
 }
 
 model VerificationToken {
@@ -76,4 +79,52 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Volunteer {
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String @id
+
+    activities Activity[]
+}
+
+model Administrator {
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String @id
+
+    Activity Activity[]
+}
+
+model Activity {
+    id             String   @id @default(cuid())
+    title          String
+    description    String
+    startTimestamp DateTime
+    endTimestamp   DateTime
+    isVisible      Boolean
+
+    tags     Tag[]
+    capacity Int
+
+    volunteers      Volunteer[]
+    manager         Administrator @relation(fields: [administratorId], references: [userId])
+    administratorId String
+
+    primaryContactInfo String
+    organization       NPO    @relation(fields: [npoId], references: [id])
+    npoId              String
+}
+
+model Tag {
+    id         String     @id @default(cuid())
+    activities Activity[]
+}
+
+model NPO {
+    id          String  @id @default(cuid())
+    name        String
+    description String
+    logo        String? // Should it be link?
+
+    Activity Activity[]
 }
