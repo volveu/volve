@@ -81,6 +81,8 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
+// Inheritance reference:
+// https://www.basedash.com/blog/how-to-model-inheritance-in-prisma
 model Volunteer {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String @id
@@ -124,7 +126,8 @@ model NPO {
     id          String  @id @default(cuid())
     name        String
     description String
-    logo        String? // Should it be link?
+    logo        String?
+    website     String?
 
     Activity Activity[]
 }
