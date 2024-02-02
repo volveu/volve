@@ -94,7 +94,7 @@ model Administrator {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String @id
 
-    Activity Activity[]
+    manageActivities Activity[]
 }
 
 model Activity {
@@ -118,7 +118,7 @@ model Activity {
 }
 
 model Tag {
-    id         String     @id @default(cuid())
+    title      String     @id
     activities Activity[]
 }
 
