@@ -17,6 +17,10 @@ const npoGetSchema = z.object({
   id: z.string(),
 });
 
+const npoUpdateSchema = npoCreateSchema.partial().extend({
+  id: z.string(),
+});
+
 export const npoRouter = createTRPCRouter({
   create: adminProcedure
     .input(npoCreateSchema)
@@ -40,4 +44,17 @@ export const npoRouter = createTRPCRouter({
       },
     });
   }),
+
+  update: adminProcedure
+    .input(npoUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { id: npoId, ...npoData } = input;
+
+      return ctx.db.npo.update({
+        where: {
+          id: npoId,
+        },
+        data: npoData,
+      });
+    }),
 });
