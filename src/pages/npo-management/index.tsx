@@ -2,17 +2,17 @@ import { PageLayout } from "../../components/Layout";
 import { LoadingPage } from "../../components/Loading";
 import Pagination from "../../components/Pagination";
 import NpoModal from "./npo-modal";
-import React from "react";
+import { useEffect, useState } from "react";
 import { api } from "~/utils/api";
 
 const NpoManagement = () => {
   const ENTRIES_PER_PAGE = 10;
-  const [showModal, setShowModal] = React.useState(false);
-  const [isEdit, setIsEdit] = React.useState(false);
-  const [id, setId] = React.useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [currPage, setCurrPage] = React.useState(1);
-  const [totalPages, setTotalPages] = React.useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [id, setId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currPage, setCurrPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const {
     data: npoData,
@@ -20,7 +20,7 @@ const NpoManagement = () => {
     refetch: refetchNPOs,
   } = api.npo.getAll.useQuery();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!npoData) return;
     setTotalPages(Math.ceil(npoData.length / ENTRIES_PER_PAGE));
   }, [npoData]);
