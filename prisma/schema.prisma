@@ -16,22 +16,9 @@ generator client {
     provider = "prisma-client-js"
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
-}
-
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
-    userId            String
     type              String
     provider          String
     providerAccountId String
@@ -42,7 +29,9 @@ model Account {
     scope             String?
     id_token          String? // @db.Text
     session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
 
     @@unique([provider, providerAccountId])
 }
@@ -58,19 +47,22 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    password      String?
-    role          Role      @default(USER)
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
+    id                 String     @id @default(cuid())
+    name               String?
+    email              String?    @unique
+    emailVerified      DateTime?
+    image              String?
+    aboutMe            String?
+    phoneNum           String?
+    password           String?
+    role               Role       @default(USER)
+    enrolledActivities Activity[]
 
-    volunteer     Volunteer?
     administrator Administrator?
+
+    // next auth fields
+    accounts Account[]
+    sessions Session[]
 }
 
 model VerificationToken {
@@ -81,20 +73,13 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
-// Inheritance reference:
-// https://www.basedash.com/blog/how-to-model-inheritance-in-prisma
-model Volunteer {
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId String @id
-
-    activities Activity[]
-}
-
 model Administrator {
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId String @id
+    admin   User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+    adminId String @id
 
-    manageActivities Activity[]
+    createdActivities Activity[]
+
+    @@index([adminId])
 }
 
 model Activity {
@@ -103,18 +88,21 @@ model Activity {
     description    String
     startTimestamp DateTime
     endTimestamp   DateTime
-    isVisible      Boolean
+    isVisible      Boolean  @default(true)
+    tags           Tag[]
 
-    tags     Tag[]
-    capacity Int
+    capacity Int?
 
-    volunteers      Volunteer[]
-    manager         Administrator @relation(fields: [administratorId], references: [userId])
-    administratorId String
+    volunteers       User[]
+    createdByAdmin   Administrator @relation(fields: [createdByAdminId], references: [adminId])
+    createdByAdminId String
 
     primaryContactInfo String
-    organization       NPO    @relation(fields: [npoId], references: [id])
+    npo                NPO    @relation(fields: [npoId], references: [id])
     npoId              String
+
+    @@index([createdByAdminId])
+    @@index([npoId])
 }
 
 model Tag {
@@ -129,5 +117,5 @@ model NPO {
     logo        String?
     website     String?
 
-    Activity Activity[]
+    activities Activity[]
 }

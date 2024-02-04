@@ -12,7 +12,7 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { User } from "@prisma/client";
-import { UserRole } from "types";
+import type { UserRole } from "types";
 
 export async function hashPassword(password: string) {
   const NUM_OF_SALT_ROUNDS = 10;
@@ -33,6 +33,8 @@ declare module "next-auth" {
     user: DefaultSession["user"] & {
       id: string;
       role: UserRole;
+      phoneNum: string | null;
+      aboutMe: string | null;
       // ...other properties
     };
   }
