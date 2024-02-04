@@ -12,7 +12,15 @@ import { db } from "~/server/db";
 import { email_z, id_z, image_z, name_z, password_z, user_z } from "types";
 import { contextProps } from "@trpc/react-query/shared";
 
-const userCreateInput_z = user_z;
+const userCreateInput_z = user_z.pick({
+  name: true,
+  aboutMe: true,
+  image: true,
+  email: true,
+  phoneNum: true,
+  password: true,
+  role: true,
+});
 const userUpdateInfoInput_z = user_z.pick({
   id: true,
   name: true,
