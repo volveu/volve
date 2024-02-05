@@ -5,6 +5,7 @@ import Pagination from "../../components/Pagination";
 import NpoModal from "./npo-modal";
 import { useEffect, useState } from "react";
 import { api } from "~/utils/api";
+import { useRouter } from "next/router";
 
 const NpoManagement = () => {
   const ENTRIES_PER_PAGE = 10;
@@ -78,6 +79,7 @@ const NpoManagement = () => {
               .map((npo) => (
                 <NPOCard
                   key={npo.id}
+                  id={npo.id}
                   title={npo.name}
                   body={npo.description}
                   logoLink={npo.logo}
@@ -101,18 +103,21 @@ export default NpoManagement;
 
 const NPOCard = ({
   title,
+  id,
   body,
   webLink,
   logoLink,
   onEdit,
 }: {
   title: string;
+  id: string;
   body: string;
   webLink: string | null;
   logoLink: string | null;
   onEdit: () => void;
 }) => {
   const { data: session } = useSession();
+  const router = useRouter();
   return (
     <div className="relative flex w-[90vw] flex-col rounded-lg bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] md:w-[50vw] md:max-w-xl md:flex-row dark:bg-neutral-700">
       <img
@@ -132,7 +137,7 @@ const NPOCard = ({
           {body}
         </p>
         <div className="flex flex-row justify-between">
-          <ViewOppButton />
+          <ViewOppButton onClick={() => router.push(`npo/${id}`)} />
           {webLink && <VisitNPOButton webLink={webLink} />}
         </div>
         {session && session.user && session.user.role === "ADMIN" && (
@@ -186,7 +191,7 @@ const NewNPOButton = ({ onClick }: { onClick?: () => void }) => {
   );
 };
 
-const VisitNPOButton = ({ webLink }: { webLink: string }) => {
+export const VisitNPOButton = ({ webLink }: { webLink: string }) => {
   return (
     <button
       type="button"
@@ -213,10 +218,11 @@ const VisitNPOButton = ({ webLink }: { webLink: string }) => {
   );
 };
 
-const ViewOppButton = () => {
+const ViewOppButton = ({ onClick }: { onClick: () => void }) => {
   return (
     <button
       type="button"
+      onClick={onClick}
       className="inline-flex items-center gap-x-2 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
     >
       <svg
