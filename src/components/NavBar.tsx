@@ -74,6 +74,15 @@ const NavBar = () => {
               Admins
             </Link>
           )}
+          {session?.user.role === "ADMIN" && (
+            <Link
+              href="/npo-management"
+              onClick={closeDropdown}
+              className="flex flex-[1_0_0%] items-center justify-center whitespace-nowrap rounded-md bg-white/10 px-4 font-bold text-white no-underline transition hover:bg-white/20"
+            >
+              NPOs
+            </Link>
+          )}
           {session && (
             <div
               onClick={() => void signOut()}
