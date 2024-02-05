@@ -38,6 +38,7 @@ const Npo = () => {
               </div>
             )}
           </div>
+          {/* TODO: List activities linked to the NPO in cards */}
         </div>
       )}
     </PageLayout>
