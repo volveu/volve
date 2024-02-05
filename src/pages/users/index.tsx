@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import { useSession } from "next-auth/react";
 import { PageLayout } from "../../components/Layout";
 import { LoadingPage } from "../../components/Loading";
