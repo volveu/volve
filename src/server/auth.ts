@@ -4,14 +4,11 @@ import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
-  AuthOptions,
 } from "next-auth";
 import bcrypt from "bcrypt";
 
-import { env } from "~/env";
 import { db } from "~/server/db";
 import CredentialsProvider from "next-auth/providers/credentials";
-import type { User } from "@prisma/client";
 import type { UserRole } from "types";
 
 export async function hashPassword(password: string) {
