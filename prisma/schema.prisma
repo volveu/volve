@@ -98,7 +98,11 @@ model Activity {
     createdByAdminId String
 
     primaryContactInfo String
+<<<<<<< HEAD
     npo                Npo    @relation(fields: [npoId], references: [id])
+=======
+    organization       Npo    @relation(fields: [npoId], references: [id])
+>>>>>>> main
     npoId              String
 
     @@index([createdByAdminId])
