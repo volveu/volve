@@ -113,7 +113,7 @@ model Activity {
     administratorId String
 
     primaryContactInfo String
-    organization       NPO    @relation(fields: [npoId], references: [id])
+    organization       Npo    @relation(fields: [npoId], references: [id])
     npoId              String
 }
 
@@ -122,12 +122,12 @@ model Tag {
     activities Activity[]
 }
 
-model NPO {
+model Npo {
     id          String  @id @default(cuid())
     name        String
     description String
     logo        String?
     website     String?
 
-    Activity Activity[]
+    activities Activity[]
 }
