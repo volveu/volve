@@ -48,6 +48,8 @@ const SignUp = () => {
       password,
       image: null,
       role,
+      aboutMe: null,
+      phoneNum: null,
     });
   }
 
