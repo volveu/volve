@@ -42,7 +42,6 @@ const ProfilePage: NextPage = () => {
   };
 
   const { name, email, role, aboutMe, phoneNum, image: imageURL } = userData;
-
   return (
     <>
       <Head>
@@ -51,7 +50,8 @@ const ProfilePage: NextPage = () => {
       <PageLayout>
         <div className="overscroll-y-scroll relative h-48 w-full border-x border-b bg-slate-600 md:max-w-2xl">
           <Image
-            src={imageURL ?? "https://picsum.photos/300/300"}
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+            src={imageURL || "https://picsum.photos/300/300"}
             alt={`${name ?? ""}'s profile pic`}
             width={128}
             height={128}
