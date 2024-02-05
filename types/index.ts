@@ -10,7 +10,7 @@ type AboutMe = string | null;
 type PhoneNumber = string | null;
 type Email = string;
 type Image = string | null;
-type Password = string;
+type Password = string | null; // nullable oauth users don't have passwords
 type UserRole = "USER" | "ADMIN";
 type User = {
   id: Id;
@@ -28,12 +28,12 @@ type User = {
 // --- requires manual updating when schema changes
 const id_z = z.string().min(1);
 const name_z = z.string().min(1).max(100);
-const aboutMe_z = z.string().max(300).nullable();
-const phoneNum_z = z.string().nullable();
 const email_z = z.string().email().min(1).max(100);
 const emailVerified_z = z.date().nullable();
+const phoneNum_z = z.string().nullable();
 const image_z = z.string().nullable();
-const password_z = z.string().min(6);
+const aboutMe_z = z.string().max(300).nullable();
+const password_z = z.string().min(6).nullable();
 const role_z = z.enum(["USER", "ADMIN"]).nullable();
 const user_z = z.object({
   id: id_z,

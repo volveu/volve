@@ -21,14 +21,13 @@ const userCreateInput_z = user_z.pick({
   password: true,
   role: true,
 });
-const userUpdateInfoInput_z = user_z.pick({
-  id: true,
-  name: true,
-  aboutMe: true,
-  image: true,
-  email: true,
-  phoneNum: true,
-});
+const userUpdateInfoInput_z = user_z
+  .omit({
+    password: true,
+    role: true,
+  })
+  .extend({ id: id_z });
+
 const userUpdatePasswordInput_z = user_z.pick({ id: true, password: true });
 
 export const userRouter = createTRPCRouter({

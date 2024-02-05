@@ -1,18 +1,17 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import { PageLayout } from "~/components/Layout";
 import { signIn, useSession } from "next-auth/react";
 import { LoadingPage, LoadingSpinner } from "~/components/Loading";
 import Link from "next/link";
-import { UserRole } from "types";
+import type { UserRole } from "types";
 import toast from "react-hot-toast";
 import { api } from "~/utils/api";
 
 const ProfilePage: NextPage = () => {
   // session is `null` until nextauth fetches user's session data
-  const { data: session, update: updateSession } = useSession({
+  const { data: session } = useSession({
     required: true,
     onUnauthenticated() {
       void signIn();

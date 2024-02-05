@@ -31,11 +31,13 @@ export async function hashPassword(password: string) {
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
-      id: string;
-      role: UserRole;
-      phoneNum: string | null;
-      aboutMe: string | null;
-      // ...other properties
+      name: string | null | undefined;
+      email: string | null | undefined;
+      image: string | null | undefined;
+      id: string | undefined;
+      phoneNum: string | null | undefined;
+      aboutMe: string | null | undefined;
+      role: UserRole | undefined;
     };
   }
 
