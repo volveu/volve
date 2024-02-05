@@ -3,7 +3,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { PageLayout } from "~/components/Layout";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { LoadingPage, LoadingSpinner } from "~/components/Loading";
 import Link from "next/link";
 import { UserRole } from "types";
@@ -11,13 +11,11 @@ import toast from "react-hot-toast";
 import { api } from "~/utils/api";
 
 const ProfilePage: NextPage = () => {
-  const router = useRouter();
-
   // session is `null` until nextauth fetches user's session data
   const { data: session, update: updateSession } = useSession({
     required: true,
     onUnauthenticated() {
-      void router.push("/sign-in");
+      void signIn();
     },
   });
 
@@ -87,7 +85,7 @@ const ProfilePage: NextPage = () => {
         </div>
         <div></div>
         <div className="py-2" />
-        <hr/>
+        <hr />
         <div className="p-4">
           <MyImpact userId={userData.id} />
         </div>
@@ -95,9 +93,9 @@ const ProfilePage: NextPage = () => {
           <div className="text-xl">My Interests</div>
           <div className="text-sm"></div>
         </div>
-         <div className="p-4">
+        <div className="p-4">
           <div className="text-xl">About Me</div>
-          { aboutMe && <div className="text-sm">{aboutMe}</div>}
+          {aboutMe && <div className="text-sm">{aboutMe}</div>}
         </div>
       </PageLayout>
     </>
@@ -199,24 +197,25 @@ const AwardBadgesForNPOsHelped = ({ userId }: AwardBadgeNPOsProps) => {
   );
 };
 
-const MyImpact = ({userId}: { userId: string }) => {
+const MyImpact = ({ userId }: { userId: string }) => {
   const { data: numOfNPOsParticipationCount, isLoading: numNPOsLoading } =
-  api.user.getUserNPOParticipationCount.useQuery({ id: userId });
-  const { data: hrs, isLoading: hrsLoading } = api.user.getHoursVolunteered.useQuery({
-    id: userId,
-  });
+    api.user.getUserNPOParticipationCount.useQuery({ id: userId });
+  const { data: hrs, isLoading: hrsLoading } =
+    api.user.getHoursVolunteered.useQuery({
+      id: userId,
+    });
   // TODO: change hardcoding
   const numOfRSVPs = 6;
   if (hrsLoading || numNPOsLoading) return <LoadingSpinner />;
   if (hrs == undefined || numOfNPOsParticipationCount) return null;
 
   return (
-    <div >
-      <div className="text-xl pb-3">My Impact</div>
+    <div>
+      <div className="pb-3 text-xl">My Impact</div>
       <div className="text-sm">{hrs} Hours Volunteered</div>
       <div className="text-sm">{numOfRSVPs} RSVPs</div>
       <div className="text-sm">{numOfNPOsParticipationCount} NPOs Helped</div>
     </div>
-  )
-}
+  );
+};
 export default ProfilePage;

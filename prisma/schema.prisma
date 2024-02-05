@@ -98,7 +98,7 @@ model Activity {
     createdByAdminId String
 
     primaryContactInfo String
-    npo                NPO    @relation(fields: [npoId], references: [id])
+    npo                Npo    @relation(fields: [npoId], references: [id])
     npoId              String
 
     @@index([createdByAdminId])
@@ -110,7 +110,7 @@ model Tag {
     activities Activity[]
 }
 
-model NPO {
+model Npo {
     id          String  @id @default(cuid())
     name        String
     description String
