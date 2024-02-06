@@ -58,7 +58,7 @@ const NpoManagement = () => {
         </div>
         <div className="m-auto flex w-[90vw] flex-row items-center justify-between text-[2rem] font-bold md:w-[50vw] md:max-w-xl">
           <h1>NPOs</h1>
-          {session && session.user && session.user.role === "ADMIN" && (
+          {session?.user?.role === "ADMIN" && (
             <NewNPOButton onClick={handleCreate} />
           )}
         </div>

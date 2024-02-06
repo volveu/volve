@@ -136,5 +136,19 @@ const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
   });
 });
 
+const enforceUserIsRoot = t.middleware(({ ctx, next }) => {
+  if (!process.env.ROOTUSER_EMAIL) throw new Error("ROOTUSER_EMAIL not set");
+  if (ctx.session?.user?.email !== process.env.ROOTUSER_EMAIL) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 export const adminProcedure = t.procedure.use(enforceUserIsAdmin);
+export const rootProcedure = t.procedure.use(enforceUserIsRoot);

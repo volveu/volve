@@ -88,10 +88,10 @@ const ProfilePage: NextPage = () => {
         <div className="p-4">
           <MyImpact userId={userData.id} />
         </div>
-        <div className="p-4">
+        {/* <div className="p-4">
           <div className="text-xl">My Interests</div>
           <div className="text-sm"></div>
-        </div>
+        </div> */}
         <div className="p-4">
           <div className="text-xl">About Me</div>
           {aboutMe && <div className="text-sm">{aboutMe}</div>}
