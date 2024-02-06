@@ -54,7 +54,7 @@ const NpoManagement = () => {
         id={id}
       />
       <div className="flex flex-col items-center">
-        <div className="mt-12 flex flex-col items-center justify-around">
+        <div className="mb-[40px] mt-12 flex flex-col items-center justify-around">
           <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </div>
         <div className="m-auto flex w-[90vw] flex-row items-center justify-between text-[2rem] font-bold md:w-[50vw] md:max-w-xl">
@@ -168,7 +168,7 @@ const NPOCard = ({
   );
 };
 
-const NewNPOButton = ({ onClick }: { onClick?: () => void }) => {
+export const NewNPOButton = ({ onClick }: { onClick?: () => void }) => {
   return (
     <>
       <button

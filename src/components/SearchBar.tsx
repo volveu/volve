@@ -6,7 +6,7 @@ const SearchBar = ({
   setSearchTerm: (searchTerm: string) => void;
 }) => {
   return (
-    <div className="mb-[40px] w-[90vw] md:w-[50vw] md:max-w-xl">
+    <div className="w-[90vw] md:w-[50vw] md:max-w-xl">
       <label className="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white">
         Search
       </label>
