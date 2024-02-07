@@ -6,7 +6,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-const nonEmptyString = z.string().refine((value) => value.trim() !== '', {
+const nonEmptyString = z.string().refine((value) => value.trim() !== "", {
   message: "Value must be a non-empty string",
 });
 
@@ -30,11 +30,11 @@ const createActivitySchema = z.object({
 });
 
 const deleteActivitySchema = z.object({
-  id: nonEmptyString
+  id: nonEmptyString,
 });
 
 const getActivitiesSchema = createActivitySchema.partial().extend({
-  search_term: z.string().optional()
+  search_term: z.string().optional(),
 });
 
 const getActivitySchema = z.object({
@@ -42,66 +42,88 @@ const getActivitySchema = z.object({
 });
 
 const updateActivitySchema = createActivitySchema.partial().extend({
-  id: nonEmptyString
+  id: nonEmptyString,
 });
 
 // NOTE: might want to add pagination using take & skip
-const getActivities = publicProcedure.input(getActivitiesSchema).query(async ({ ctx, input }) => {
-  const filter = { where: {} };
+const getActivities = publicProcedure
+  .input(getActivitiesSchema)
+  .query(async ({ ctx, input }) => {
+    const filter = { where: {} };
 
-  // title & description filter
-  const { search_term: terms } = input;
-  filter.where = {
-    ...filter.where,
-    ...(terms && {
-      OR: [
-        {
-          title: {
-            contains: terms,
-            mode: "insensitive",
-          },
-        },
-        {
-          description: {
-            contains: terms,
-            mode: "insensitive",
-          },
-        },
-      ],
-    }),
-  };
-
-  // NPO filter
-  const { npoId: id } = input;
-  filter.where = {
-    ...filter.where,
-    ...(id && {
-      npoId: id,
-    }),
-  };
-
-  // timestamp filter
-  const { startTimestamp: start, endTimestamp: end } = input;
-  filter.where = {
-    ...filter.where,
-    ...(start &&
-      end && {
+    // title & description filter
+    const { search_term: terms } = input;
+    filter.where = {
+      ...filter.where,
+      ...(terms && {
         OR: [
           {
-            startTimestamp: {
-              gte: start,
-              lte: end,
+            title: {
+              contains: terms,
+              mode: "insensitive",
             },
           },
           {
-            endTimestamp: {
-              gte: start,
-              lte: end,
+            description: {
+              contains: terms,
+              mode: "insensitive",
             },
           },
         ],
       }),
-  };
+    };
 
-  return ctx.db.activity.findMany(filter);
-});
+    // NPO filter
+    const { npoId: id } = input;
+    filter.where = {
+      ...filter.where,
+      ...(id && {
+        npoId: id,
+      }),
+    };
+
+    // timestamp filter
+    const { startTimestamp: start, endTimestamp: end } = input;
+    filter.where = {
+      ...filter.where,
+      ...(start &&
+        end && {
+          OR: [
+            {
+              startTimestamp: {
+                gte: start,
+                lte: end,
+              },
+            },
+            {
+              endTimestamp: {
+                gte: start,
+                lte: end,
+              },
+            },
+          ],
+        }),
+    };
+
+    return ctx.db.activity.findMany(filter);
+  });
+
+const getActivity = publicProcedure
+  .input(getActivitySchema)
+  .query(async ({ ctx, input }) => {
+    return ctx.db.activity.findFirstOrThrow({
+      where: {
+        id: input.id,
+      },
+    });
+  });
+
+const deleteActivity = adminProcedure
+  .input(deleteActivitySchema)
+  .mutation(async ({ ctx, input }) => {
+    return ctx.db.activity.delete({
+      where: {
+        id: input.id,
+      },
+    });
+  });
