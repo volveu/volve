@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   adminProcedure,
   createTRPCRouter,
+  protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 
@@ -44,6 +45,10 @@ const getActivitySchema = z.object({
 
 const updateActivitySchema = createActivitySchema.partial().extend({
   id: nonEmptyString,
+});
+
+const userActivitySchema = z.object({
+  activity_id: nonEmptyString,
 });
 
 // NOTE: might want to add pagination using take & skip
@@ -150,8 +155,36 @@ const createActivity = adminProcedure
     const data = input;
 
     return ctx.db.activity.create({
-      data: data
+      data: data,
     });
   });
 
+const attendActivity = protectedProcedure
+  .input(userActivitySchema)
+  .mutation(async ({ ctx, input }) => {
+    const user_id = ctx.session.user.id;
+    const { activity_id } = input;
+    return ctx.db.activity.update({
+      where: { id: activity_id },
+      data: {
+        volunteers: {
+          connect: { id: user_id },
+        },
+      },
+    });
+  });
 
+const unattendActivity = protectedProcedure
+  .input(userActivitySchema)
+  .mutation(async ({ ctx, input }) => {
+    const user_id = ctx.session.user.id;
+    const { activity_id } = input;
+    return ctx.db.activity.update({
+      where: { id: activity_id },
+      data: {
+        volunteers: {
+          disconnect: { id: user_id },
+        },
+      },
+    });
+  });
