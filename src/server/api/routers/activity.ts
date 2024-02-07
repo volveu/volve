@@ -1,3 +1,4 @@
+import { id_z } from "types";
 import { z } from "zod";
 
 import {
@@ -127,3 +128,30 @@ const deleteActivity = adminProcedure
       },
     });
   });
+
+// TODO: combine with tags & users
+const updateActivity = adminProcedure
+  .input(updateActivitySchema)
+  .mutation(async ({ ctx, input }) => {
+    const { id: id, ...data } = input;
+
+    return ctx.db.activity.update({
+      where: {
+        id: id,
+      },
+      data: data,
+    });
+  });
+
+// TODO: combine with tags & users
+const createActivity = adminProcedure
+  .input(createActivitySchema)
+  .mutation(async ({ ctx, input }) => {
+    const data = input;
+
+    return ctx.db.activity.create({
+      data: data
+    });
+  });
+
+
