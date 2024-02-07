@@ -84,22 +84,22 @@ model Administrator {
 
 model Activity {
     id             String   @id @default(cuid())
-    title          String
-    description    String
-    startTimestamp DateTime
-    endTimestamp   DateTime
+    title          String // C
+    description    String // C
+    startTimestamp DateTime // C
+    endTimestamp   DateTime // C
     isVisible      Boolean  @default(true)
-    tags           Tag[]
+    tags           Tag[] // should have another model for many-to-many relationship
 
-    capacity Int?
+    capacity Int? // C
 
-    volunteers       User[]
+    volunteers       User[] // should have another model for many-to-many relationship
     createdByAdmin   Administrator @relation(fields: [createdByAdminId], references: [adminId])
-    createdByAdminId String
+    createdByAdminId String // C
 
-    primaryContactInfo String
+    primaryContactInfo String // C
     npo                Npo    @relation(fields: [npoId], references: [id])
-    npoId              String
+    npoId              String // C
 
     @@index([createdByAdminId])
     @@index([npoId])
