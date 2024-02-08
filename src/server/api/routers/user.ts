@@ -1,9 +1,11 @@
 import { z } from "zod";
 
 import {
+  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
+  rootProcedure,
 } from "~/server/api/trpc";
 
 import { TRPCError } from "@trpc/server";
@@ -37,6 +39,12 @@ const userUpdatePasswordInput_z = z.object({
 });
 
 export const userRouter = createTRPCRouter({
+  getAll: adminProcedure.query(async ({ ctx }) => {
+    const users = await ctx.db.user.findMany({
+      select: { id: true, name: true, email: true, role: true, phoneNum: true },
+    });
+    return users;
+  }),
   getHoursVolunteered: protectedProcedure
     .input(z.object({ id: id_z }))
     .query(async ({ ctx, input }) => {
@@ -111,6 +119,48 @@ export const userRouter = createTRPCRouter({
       await ctx.db.user.update({
         where: { id: id },
         data: { password: passwordHash },
+      });
+    }),
+
+  promoteToAdmin: rootProcedure
+    .input(z.object({ id: id_z }))
+    .mutation(async ({ ctx, input }) => {
+      const { id } = input;
+      const user = await ctx.db.user.findFirst({
+        where: { id: id },
+        select: { role: true },
+      });
+      if (user?.role === "ADMIN") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User is already an admin",
+        });
+      }
+
+      await ctx.db.user.update({
+        where: { id: id },
+        data: { role: "ADMIN" },
+      });
+    }),
+
+  demoteAdmin: rootProcedure
+    .input(z.object({ id: id_z }))
+    .mutation(async ({ ctx, input }) => {
+      const { id } = input;
+      const user = await ctx.db.user.findFirst({
+        where: { id: id },
+        select: { role: true },
+      });
+      if (user?.role === "USER") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User is not an admin",
+        });
+      }
+
+      await ctx.db.user.update({
+        where: { id: id },
+        data: { role: "USER" },
       });
     }),
 });
