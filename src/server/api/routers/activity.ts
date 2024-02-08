@@ -430,4 +430,4 @@ export const volunteerActivityRouter = createTRPCRouter({
   list: listVolunteerActivity,
   update: updateVolunteerActivity,
   delete: deleteVolunteerActivity
-})
+});
