@@ -85,7 +85,7 @@ model Administrator {
 model Activity {
     id             String   @id @default(cuid())
     title          String // C
-    description    String // C
+    description    String   @db.Text // C
     startTimestamp DateTime // C
     endTimestamp   DateTime // C
     isVisible      Boolean  @default(true)
@@ -113,7 +113,7 @@ model Tag {
 model Npo {
     id          String  @id @default(cuid())
     name        String
-    description String
+    description String  @db.Text
     logo        String?
     website     String?
 
