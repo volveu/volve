@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { id_z } from "types";
 import { z } from "zod";
 
@@ -30,6 +31,7 @@ const createActivitySchema = z.object({
   endTimestamp: nonEmptyDate,
   npoId: nonEmptyString,
   primaryContactInfo: nonEmptyString,
+  tags: z.array(tagSchema).optional(),
   // optional, capacity should be non-negative
   capacity: z.number().nonnegative().optional(),
 });
@@ -51,7 +53,7 @@ const updateTagsSchema = {
   removed_tags: z.array(tagSchema).optional(),
 };
 
-const updateActivitySchema = createActivitySchema.partial().extend({
+const updateActivitySchema = createActivitySchema.extend(updateTagsSchema).partial().extend({
   id: nonEmptyString,
 });
 
@@ -146,21 +148,52 @@ const deleteActivity = adminProcedure
 const updateActivity = adminProcedure
   .input(updateActivitySchema)
   .mutation(async ({ ctx, input }) => {
-    const { id: id, ...data } = input;
+    const { id, tags: _, added_tags, removed_tags, ...data } = input;
 
-    return ctx.db.activity.update({
-      where: {
-        id: id,
-      },
-      data: data,
-    });
+    await ctx.db.$transaction([
+      ctx.db.activity.update({
+        where: {
+          id: id,
+        },
+        data: data,
+      }),
+      ctx.db.activity.update({
+        where: {
+          id: id,
+        },
+        data: {
+          ...(added_tags && {
+            tags: {
+              connectOrCreate: added_tags.map((tag) => ({
+                where: tag,
+                create: tag,
+              })),
+            },
+          }),
+        },
+      }),
+      ctx.db.activity.update({
+        where: {
+          id: id,
+        },
+        data: {
+          ...(removed_tags && {
+            tags: {
+              disconnect: removed_tags
+            },
+          }),
+        },
+      }),
+    ]);
+
+    return ;
   });
 
 // TODO: combine with tags
 const createActivity = adminProcedure
   .input(createActivitySchema)
   .mutation(async ({ ctx, input }) => {
-    const data = input;
+    const { tags, ...data} = input;
     const adminId = ctx.session.user.id;
     
     if (!adminId) {
@@ -171,8 +204,18 @@ const createActivity = adminProcedure
     return ctx.db.activity.create({
       data: {
         ...data,
-        createdByAdminId: adminId
+        createdByAdminId: adminId,
+        // attach a tag to the activity, create if tag does not exist yet
+        tags: {
+          connectOrCreate: tags?.map((tag) => ({
+            where: tag,
+            create: tag,
+          }))
+        }
       },
+      include: {
+        tags: true
+      }
     });
   });
 
