@@ -2,10 +2,11 @@ import { useSession } from "next-auth/react";
 import { PageLayout } from "../../components/Layout";
 import { LoadingPage } from "../../components/Loading";
 import Pagination from "../../components/Pagination";
-import NpoModal from "./npo-modal";
+import NpoModal from "../../components/modals/NpoModal";
 import { useEffect, useState } from "react";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
+import SearchBar from "../../components/SearchBar";
 
 const NpoManagement = () => {
   const ENTRIES_PER_PAGE = 10;
@@ -53,15 +54,17 @@ const NpoManagement = () => {
         id={id}
       />
       <div className="flex flex-col items-center">
-        <div className="mt-12 flex flex-col items-center justify-around">
+        <div className="mb-[40px] mt-12 flex flex-col items-center justify-around">
           <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </div>
-        <div className="m-auto flex w-[90vw] flex-row items-center justify-between text-[2rem] font-bold md:w-[50vw] md:max-w-xl">
+        <div className="py-1" />
+        <div className="flex w-[90vw] flex-row items-baseline justify-between text-[2rem] font-bold md:w-[50vw] md:max-w-xl">
           <h1>NPOs</h1>
           {session?.user?.role === "ADMIN" && (
             <NewNPOButton onClick={handleCreate} />
           )}
         </div>
+        <div className="py-2" />
         <div className="mt-[10px] flex min-h-screen flex-col items-center gap-[30px]">
           {isLoading ? (
             <LoadingPage />
@@ -90,6 +93,7 @@ const NpoManagement = () => {
           )}
           {!isLoading && npoData?.length === 0 && <p>No NPOs found</p>}
         </div>
+        <div className="py-6" />
         <Pagination
           currPage={currPage}
           totalPages={totalPages}
@@ -118,40 +122,55 @@ const NPOCard = ({
 }) => {
   const { data: session } = useSession();
   const router = useRouter();
+  const handleViewNPO = () => router.push(`npo/${id}`);
+  const openWebsite = (site: string) => window.open(site, "_blank");
   return (
-    <div className="relative flex w-[90vw] flex-col rounded-lg bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] md:w-[50vw] md:max-w-xl md:flex-row dark:bg-neutral-700">
-      <img
-        className="h-66 w-full rounded-t-lg object-cover md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
-        src={
-          logoLink
-            ? logoLink
-            : "https://www.gospel360.org/wp-content/uploads/2022/09/placeholder-16.png"
-        }
-        alt="logo-link"
-      />
-      <div className="flex h-full w-full flex-col justify-start p-6">
-        <h5 className="mb-2 text-xl font-medium text-neutral-800 dark:text-neutral-50">
-          {title}
-        </h5>
-        <p className="mb-4 overflow-scroll text-base text-neutral-600 md:max-h-[15vw] md:min-h-[5vw] dark:text-neutral-200">
+    <div className="relative flex w-[90vw] flex-row items-center gap-4 rounded-2xl bg-white p-4 sm:p-6 md:w-[50vw] md:max-w-xl md:flex-row dark:bg-neutral-700">
+      <div className="hidden h-36 w-36 flex-shrink-0 flex-grow-0 overflow-hidden rounded-2xl bg-slate-100 sm:block">
+        {/* using img cos need to configure Next to accept specific domains but not sure which domains these are coming from */}
+        {/* eslint-disable-next-line @next/next/no-img-element  */}
+        <img
+          className="h-full w-full cursor-pointer rounded-t-lg object-contain hover:opacity-90"
+          src={
+            logoLink ??
+            "https://www.gospel360.org/wp-content/uploads/2022/09/placeholder-16.png"
+          }
+          onClick={handleViewNPO}
+          alt="logo-link"
+        />
+      </div>
+
+      <div className="flex h-36 w-full flex-col justify-start gap-4 px-3">
+        <div className="flex flex-row items-baseline justify-start gap-2">
+          <h6
+            onClick={handleViewNPO}
+            className="cursor-pointer text-xl font-medium text-neutral-800 hover:opacity-90 dark:text-neutral-50"
+          >
+            {title}
+          </h6>
+          {webLink && (
+            <div
+              className="cursor-pointer rounded-md text-xs text-neutral-400 underline"
+              onClick={() => openWebsite(webLink)}
+            >
+              website
+            </div>
+          )}
+        </div>
+        <p className="h-full overflow-auto text-sm text-neutral-600 md:max-h-[15vw] md:min-h-[5vw] dark:text-neutral-200">
           {body}
         </p>
-        <div className="flex flex-row justify-between">
-          <ViewOppButton onClick={() => router.push(`npo/${id}`)} />
-          {webLink && <VisitNPOButton webLink={webLink} />}
-        </div>
+        {/* {webLink && <VisitNPOButton webLink={webLink} />} */}
         {session && session.user && session.user.role === "ADMIN" && (
           <button
             type="button"
             onClick={onEdit}
-            className="absolute right-4 top-4 flex h-[2.375rem] w-[2.375rem] flex-shrink-0 items-center justify-center gap-1 rounded-full border border-transparent bg-yellow-500 text-sm font-semibold text-white hover:bg-yellow-600 disabled:pointer-events-none disabled:opacity-50 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+            className="absolute right-4 top-4 flex h-6 w-6 flex-shrink-0 items-center justify-center gap-1 rounded-sm border border-transparent text-sm font-semibold text-white hover:scale-110 disabled:pointer-events-none disabled:opacity-50 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
               fill="currentColor"
-              className="bi bi-pencil-square"
+              className="bi bi-pencil-square h-4 w-4"
               viewBox="0 0 16 16"
             >
               <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
@@ -167,13 +186,13 @@ const NPOCard = ({
   );
 };
 
-const NewNPOButton = ({ onClick }: { onClick?: () => void }) => {
+export const NewNPOButton = ({ onClick }: { onClick?: () => void }) => {
   return (
     <>
       <button
         type="button"
         onClick={onClick}
-        className="inline-flex items-center gap-x-2 rounded-lg border border-transparent bg-teal-500 px-4 py-3 text-sm font-semibold text-white hover:bg-teal-600 disabled:pointer-events-none disabled:opacity-50 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+        className="inline-flex items-center gap-x-2 rounded-lg border border-transparent bg-emerald-600 px-4 py-1 text-sm font-semibold text-white hover:bg-emerald-700 disabled:pointer-events-none disabled:opacity-50 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -185,7 +204,7 @@ const NewNPOButton = ({ onClick }: { onClick?: () => void }) => {
         >
           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z" />
         </svg>
-        Create New
+        create new
       </button>
     </>
   );
@@ -215,69 +234,5 @@ export const VisitNPOButton = ({ webLink }: { webLink: string }) => {
         />
       </svg>
     </button>
-  );
-};
-
-const ViewOppButton = ({ onClick }: { onClick: () => void }) => {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex items-center gap-x-2 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        fill="currentColor"
-        className="bi bi-search"
-        viewBox="0 0 16 16"
-      >
-        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-      </svg>
-      View Events
-    </button>
-  );
-};
-
-const SearchBar = ({
-  searchTerm,
-  setSearchTerm,
-}: {
-  searchTerm: string;
-  setSearchTerm: (searchTerm: string) => void;
-}) => {
-  return (
-    <div className="mb-[40px] w-[90vw] md:w-[50vw] md:max-w-xl">
-      <label className="sr-only mb-2 text-sm font-medium text-gray-900 dark:text-white">
-        Search
-      </label>
-      <div className="relative">
-        <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
-          <svg
-            className="h-4 w-4 text-gray-500 dark:text-gray-400"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 20 20"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-            />
-          </svg>
-        </div>
-        <input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 ps-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-          placeholder="Search..."
-          required
-        />
-      </div>
-    </div>
   );
 };
