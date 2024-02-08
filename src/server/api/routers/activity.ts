@@ -89,6 +89,17 @@ const getActivities = publicProcedure
       }),
     };
 
+    // tags filter
+    const { tags } = input;
+    filter.where = {
+      ...filter.where,
+      ...(tags && {
+        tags: {
+          hasEvery: tags, // need to test if it works
+        }
+      }),
+    };
+
     // NPO filter
     const { npoId: id } = input;
     filter.where = {
