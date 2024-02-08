@@ -89,11 +89,11 @@ model Activity {
     startTimestamp DateTime // C
     endTimestamp   DateTime // C
     isVisible      Boolean  @default(true)
-    tags           Tag[] // should have another model for many-to-many relationship
+    tags           Tag[]
 
     capacity Int? // C
 
-    volunteers       User[] // should have another model for many-to-many relationship
+    volunteers       User[]
     createdByAdmin   Administrator @relation(fields: [createdByAdminId], references: [adminId])
     createdByAdminId String // C
 

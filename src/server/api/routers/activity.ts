@@ -18,6 +18,10 @@ const nonEmptyDate = z
     message: "Value must be a non-empty datetime",
   });
 
+const tagSchema = z.object({
+  title: nonEmptyString,
+});
+
 // TODO: will add extra schema for users and tags
 const createActivitySchema = z.object({
   title: nonEmptyString,
@@ -27,7 +31,7 @@ const createActivitySchema = z.object({
   npoId: nonEmptyString,
   primaryContactInfo: nonEmptyString,
   createdByAdminId: nonEmptyString,
-  // optional, capacity should be non-nengative
+  // optional, capacity should be non-negative
   capacity: z.number().nonnegative().optional(),
 });
 
@@ -42,6 +46,11 @@ const getActivitiesSchema = createActivitySchema.partial().extend({
 const getActivitySchema = z.object({
   id: nonEmptyString,
 });
+
+const updateTagsSchema = {
+  added_tags: z.array(tagSchema).optional(),
+  removed_tags: z.array(tagSchema).optional(),
+};
 
 const updateActivitySchema = createActivitySchema.partial().extend({
   id: nonEmptyString,
@@ -148,7 +157,7 @@ const updateActivity = adminProcedure
     });
   });
 
-// TODO: combine with tags & users
+// TODO: combine with tags
 const createActivity = adminProcedure
   .input(createActivitySchema)
   .mutation(async ({ ctx, input }) => {
