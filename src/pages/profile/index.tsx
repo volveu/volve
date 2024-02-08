@@ -48,14 +48,14 @@ const ProfilePage: NextPage = () => {
         <title>Profile</title>
       </Head>
       <PageLayout>
-        <div className="overscroll-y-scroll relative h-48 w-full border-x border-b bg-slate-600 md:max-w-2xl">
+        <div className="overscroll-y-scroll relative h-48 w-full bg-slate-700 md:max-w-2xl">
           <Image
             // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
             src={imageURL || "https://picsum.photos/300/300"}
             alt={`${name ?? ""}'s profile pic`}
             width={128}
             height={128}
-            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-md border-2 border-b bg-black"
+            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-md border border-slate-400 bg-black"
           />
         </div>
         {/* spacer */}
@@ -82,12 +82,14 @@ const ProfilePage: NextPage = () => {
           <div className="py-1" />
           <AwardBadgesForNPOsHelped userId={userData.id} />
         </div>
-        <div></div>
-        <div className="py-2" />
-        <hr />
-        <div className="p-4">
+        <div className="py-1" />
+        <hr className="h-px border-0 bg-gray-700" />
+        <div className="py-3" />
+        <div className="border-px rounded-2xl border-solid border-slate-400 bg-slate-800 p-4">
           <MyImpact userId={userData.id} />
         </div>
+        <div className="py-2" />
+
         {/* <div className="p-4">
           <div className="text-xl">My Interests</div>
           <div className="text-sm"></div>
@@ -96,6 +98,7 @@ const ProfilePage: NextPage = () => {
           <div className="text-xl">About Me</div>
           {aboutMe && <div className="text-sm">{aboutMe}</div>}
         </div>
+        <div className="py-6" />
       </PageLayout>
     </>
   );
@@ -210,7 +213,12 @@ const MyImpact = ({ userId }: { userId: string }) => {
 
   return (
     <div>
-      <div className="pb-3 text-xl">My Impact</div>
+      <div className="flex flex-row justify-between">
+        <div className="pb-3 text-xl">My Impact</div>
+        <div className="cursor-pointer rounded-md text-neutral-400 underline">
+          generate report
+        </div>
+      </div>
       <div className="text-sm">{hrs} Hours Volunteered</div>
       <div className="text-sm">{numOfRSVPs} RSVPs</div>
       <div className="text-sm">{numOfNPOsParticipationCount} NPOs Helped</div>

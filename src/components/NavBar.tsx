@@ -67,7 +67,7 @@ const NavBar = () => {
             <div className="flex flex-row items-start py-5">
               <Image
                 onClick={handleViewProfile}
-                className="h-16 w-16 cursor-pointer rounded-full border-2 hover:border-blue-200"
+                className="h-16 w-16 cursor-pointer rounded-full border hover:border-blue-200"
                 src={"https://picsum.photos/300/300"}
                 alt={`profile pic`}
                 height={30}
