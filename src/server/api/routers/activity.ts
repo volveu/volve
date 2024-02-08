@@ -23,7 +23,6 @@ const tagSchema = z.object({
   title: nonEmptyString,
 });
 
-// TODO: will add extra schema for users and tags
 const createActivitySchema = z.object({
   title: nonEmptyString,
   description: nonEmptyString,
@@ -53,9 +52,12 @@ const updateTagsSchema = {
   removed_tags: z.array(tagSchema).optional(),
 };
 
-const updateActivitySchema = createActivitySchema.extend(updateTagsSchema).partial().extend({
-  id: nonEmptyString,
-});
+const updateActivitySchema = createActivitySchema
+  .extend(updateTagsSchema)
+  .partial()
+  .extend({
+    id: nonEmptyString,
+  });
 
 const userActivitySchema = z.object({
   activity_id: nonEmptyString,
@@ -65,7 +67,15 @@ const userActivitySchema = z.object({
 const getActivities = publicProcedure
   .input(getActivitiesSchema)
   .query(async ({ ctx, input }) => {
-    const filter = { where: {}, include: {} };
+    const filter = {
+      where: {},
+      include: {
+        tags: true,
+        npo: true,
+        volunteers: true,
+        createdByAdmin: true,
+      },
+    };
 
     // title & description filter
     const { search_term: terms } = input;
@@ -96,7 +106,7 @@ const getActivities = publicProcedure
       ...(tags && {
         tags: {
           hasEvery: tags, // need to test if it works
-        }
+        },
       }),
     };
 
@@ -142,6 +152,12 @@ const getActivity = publicProcedure
       where: {
         id: input.id,
       },
+      include: {
+        tags: true,
+        npo: true,
+        volunteers: true,
+        createdByAdmin: true,
+      },
     });
   });
 
@@ -155,7 +171,6 @@ const deleteActivity = adminProcedure
     });
   });
 
-// TODO: combine with tags & users
 const updateActivity = adminProcedure
   .input(updateActivitySchema)
   .mutation(async ({ ctx, input }) => {
@@ -167,11 +182,6 @@ const updateActivity = adminProcedure
           id: id,
         },
         data: data,
-        ...(data.npoId && {
-          include: {
-            npo: true
-          }
-        })
       }),
       ctx.db.activity.update({
         where: {
@@ -187,9 +197,6 @@ const updateActivity = adminProcedure
             },
           }),
         },
-        include: {
-          tags: true,
-        }
       }),
       ctx.db.activity.update({
         where: {
@@ -198,26 +205,22 @@ const updateActivity = adminProcedure
         data: {
           ...(removed_tags && {
             tags: {
-              disconnect: removed_tags
+              disconnect: removed_tags,
             },
           }),
         },
-        include: {
-          tags: true,
-        }
       }),
     ]);
 
-    return ;
+    return;
   });
 
-// TODO: combine with tags
 const createActivity = adminProcedure
   .input(createActivitySchema)
   .mutation(async ({ ctx, input }) => {
-    const { tags, ...data} = input;
+    const { tags, ...data } = input;
     const adminId = ctx.session.user.id;
-    
+
     if (!adminId) {
       // Invalid RPC access
       return;
@@ -232,14 +235,14 @@ const createActivity = adminProcedure
           connectOrCreate: tags?.map((tag) => ({
             where: tag,
             create: tag,
-          }))
-        }
+          })),
+        },
       },
       include: {
         tags: true,
         createdByAdmin: true,
         npo: true,
-      }
+      },
     });
   });
 
@@ -255,9 +258,6 @@ const attendActivity = protectedProcedure
           connect: { id: user_id },
         },
       },
-      include: {
-        volunteers: true,
-      }
     });
   });
 
@@ -273,8 +273,15 @@ const unattendActivity = protectedProcedure
           disconnect: { id: user_id },
         },
       },
-      include: {
-        volunteers: true,
-      }
     });
   });
+
+export const activityRouter = createTRPCRouter({
+  create: createActivity,
+  get: getActivity,
+  list: getActivities,
+  update: updateActivity,
+  delete: deleteActivity,
+  attend: attendActivity,
+  unattend: unattendActivity,
+});
