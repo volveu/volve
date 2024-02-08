@@ -2,120 +2,136 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 enum Role {
-    USER
-    ADMIN
+  USER
+  ADMIN
 }
 
 datasource db {
-    provider     = "mysql"
-    url          = env("DATABASE_URL")
-    relationMode = "prisma"
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? // @db.Text
-    session_state     String?
+  id                String  @id @default(cuid())
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? // @db.Text
+  access_token      String? // @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? // @db.Text
+  session_state     String?
 
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @updatedAt
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
-    id                 String     @id @default(cuid())
-    name               String?
-    email              String?    @unique
-    emailVerified      DateTime?
-    image              String?
-    aboutMe            String?
-    phoneNum           String?
-    password           String?
-    role               Role       @default(USER)
-    enrolledActivities Activity[]
+  id                 String              @id @default(cuid())
+  name               String?
+  email              String?             @unique
+  emailVerified      DateTime?
+  image              String?
+  aboutMe            String?
+  phoneNum           String?
+  password           String?
+  role               Role                @default(USER)
+  enrolledActivities VolunteerActivity[]
 
-    administrator Administrator?
+  administrator Administrator?
 
-    // next auth fields
-    accounts Account[]
-    sessions Session[]
+  // next auth fields
+  accounts Account[]
+  sessions Session[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
 
 model Administrator {
-    admin   User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
-    adminId String @id
+  admin   User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId String @id
 
-    createdActivities Activity[]
+  createdActivities Activity[]
 
-    @@index([adminId])
+  @@index([adminId])
 }
 
 model Activity {
-    id             String   @id @default(cuid())
-    title          String // C
-    description    String // C
-    startTimestamp DateTime // C
-    endTimestamp   DateTime // C
-    isVisible      Boolean  @default(true)
-    tags           Tag[]
+  id             String   @id @default(cuid())
+  title          String // C
+  description    String // C
+  startTimestamp DateTime // C
+  endTimestamp   DateTime // C
+  isVisible      Boolean  @default(true)
+  tags           Tag[]
 
-    capacity Int? // C
+  capacity Int? // C
 
-    volunteers       User[]
-    createdByAdmin   Administrator @relation(fields: [createdByAdminId], references: [adminId])
-    createdByAdminId String // C
+  volunteers       VolunteerActivity[]
+  createdByAdmin   Administrator       @relation(fields: [createdByAdminId], references: [adminId])
+  createdByAdminId String // C
 
-    primaryContactInfo String // C
-    npo                Npo    @relation(fields: [npoId], references: [id])
-    npoId              String // C
+  primaryContactInfo String // C
+  npo                Npo    @relation(fields: [npoId], references: [id])
+  npoId              String // C
 
-    @@index([createdByAdminId])
-    @@index([npoId])
+  @@index([createdByAdminId])
+  @@index([npoId])
+}
+
+model VolunteerActivity {
+  volunteerId String
+  activityId  String
+  hoursPut    Int    @default(0)
+
+  volunteer User     @relation(fields: [volunteerId], references: [id])
+  activity  Activity @relation(fields: [activityId], references: [id])
+
+  @@id([volunteerId, activityId])
+  @@unique([volunteerId, activityId])
+  @@index([activityId])
 }
 
 model Tag {
-    title      String     @id
-    activities Activity[]
+  title      String     @id
+  activities Activity[]
 }
 
 model Npo {
-    id          String  @id @default(cuid())
-    name        String
-    description String
-    logo        String?
-    website     String?
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  logo        String?
+  website     String?
 
-    activities Activity[]
+  activities Activity[]
 }
