@@ -65,7 +65,7 @@ const userActivitySchema = z.object({
 const getActivities = publicProcedure
   .input(getActivitiesSchema)
   .query(async ({ ctx, input }) => {
-    const filter = { where: {} };
+    const filter = { where: {}, include: {} };
 
     // title & description filter
     const { search_term: terms } = input;
@@ -167,6 +167,11 @@ const updateActivity = adminProcedure
           id: id,
         },
         data: data,
+        ...(data.npoId && {
+          include: {
+            npo: true
+          }
+        })
       }),
       ctx.db.activity.update({
         where: {
@@ -182,6 +187,9 @@ const updateActivity = adminProcedure
             },
           }),
         },
+        include: {
+          tags: true,
+        }
       }),
       ctx.db.activity.update({
         where: {
@@ -194,6 +202,9 @@ const updateActivity = adminProcedure
             },
           }),
         },
+        include: {
+          tags: true,
+        }
       }),
     ]);
 
@@ -225,7 +236,9 @@ const createActivity = adminProcedure
         }
       },
       include: {
-        tags: true
+        tags: true,
+        createdByAdmin: true,
+        npo: true,
       }
     });
   });
@@ -242,6 +255,9 @@ const attendActivity = protectedProcedure
           connect: { id: user_id },
         },
       },
+      include: {
+        volunteers: true,
+      }
     });
   });
 
@@ -257,5 +273,8 @@ const unattendActivity = protectedProcedure
           disconnect: { id: user_id },
         },
       },
+      include: {
+        volunteers: true,
+      }
     });
   });
