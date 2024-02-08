@@ -30,7 +30,6 @@ const createActivitySchema = z.object({
   endTimestamp: nonEmptyDate,
   npoId: nonEmptyString,
   primaryContactInfo: nonEmptyString,
-  createdByAdminId: nonEmptyString,
   // optional, capacity should be non-negative
   capacity: z.number().nonnegative().optional(),
 });
@@ -162,9 +161,18 @@ const createActivity = adminProcedure
   .input(createActivitySchema)
   .mutation(async ({ ctx, input }) => {
     const data = input;
+    const adminId = ctx.session.user.id;
+    
+    if (!adminId) {
+      // Invalid RPC access
+      return;
+    }
 
     return ctx.db.activity.create({
-      data: data,
+      data: {
+        ...data,
+        createdByAdminId: adminId
+      },
     });
   });
 
