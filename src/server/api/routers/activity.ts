@@ -82,6 +82,10 @@ const admin_deleteVolunteerActivitySchema = user_volunteerActivitySchema.extend(
   },
 );
 
+const getActivitiesByNpoIdSchema = z.object({
+  npoId: nonEmptyString,
+});
+
 const admin_listVolunteerActivitySchema = user_volunteerActivitySchema
   .extend({
     user_id: nonEmptyString,
@@ -168,6 +172,22 @@ const getActivities = publicProcedure
     };
 
     return ctx.db.activity.findMany(filter);
+  });
+
+const getActivitiesByNpoId = publicProcedure
+  .input(getActivitiesByNpoIdSchema)
+  .query(async ({ ctx, input }) => {
+    return ctx.db.activity.findMany({
+      where: {
+        npoId: input.npoId,
+      },
+      include: {
+        tags: true,
+        npo: true,
+        volunteers: true,
+        createdByAdmin: true,
+      },
+    });
   });
 
 const getActivity = publicProcedure
@@ -433,6 +453,7 @@ export const activityRouter = createTRPCRouter({
   attend: attendActivity,
   unattend: unattendActivity,
   tags: getTags,
+  getActivitiesByNpoId: getActivitiesByNpoId,
 });
 
 export const volunteerActivityRouter = createTRPCRouter({
