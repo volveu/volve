@@ -308,108 +308,108 @@ const unattendActivity = protectedProcedure
     });
   });
 
-const getOwnVolunteerActivity = protectedProcedure.input(user_volunteerActivitySchema).query(async ({ ctx, input }) => {
-  const user_id = ctx.session.user.id;
-  const { activity_id } = input;
+// const getOwnVolunteerActivity = protectedProcedure.input(user_volunteerActivitySchema).query(async ({ ctx, input }) => {
+//   const user_id = ctx.session.user.id;
+//   const { activity_id } = input;
 
-  if (!user_id) {
-    // Invalid RPC access
-    return;
-  }
+//   if (!user_id) {
+//     // Invalid RPC access
+//     return;
+//   }
 
-  return ctx.db.volunteerActivity.findUniqueOrThrow({
-    where: {
-      volunteerId_activityId: {
-        volunteerId: user_id,
-        activityId: activity_id,
-      },
-    },
-    include: {
-      activity: true,
-    },
-  });
-});
+//   return ctx.db.volunteerActivity.findUniqueOrThrow({
+//     where: {
+//       volunteerId_activityId: {
+//         volunteerId: user_id,
+//         activityId: activity_id,
+//       },
+//     },
+//     include: {
+//       activity: true,
+//     },
+//   });
+// });
 
-const getOwnVolunteerActivities = protectedProcedure.query(async ({ ctx }) => {
-  const user_id = ctx.session.user.id;
+// const getOwnVolunteerActivities = protectedProcedure.query(async ({ ctx }) => {
+//   const user_id = ctx.session.user.id;
 
-  if (!user_id) {
-    // Invalid RPC access
-    return;
-  }
+//   if (!user_id) {
+//     // Invalid RPC access
+//     return;
+//   }
 
-  return ctx.db.volunteerActivity.findMany({
-    where: {
-      volunteerId: user_id,
-    },
-    include: {
-      activity: true,
-    },
-  });
-});
+//   return ctx.db.volunteerActivity.findMany({
+//     where: {
+//       volunteerId: user_id,
+//     },
+//     include: {
+//       activity: true,
+//     },
+//   });
+// });
 
-const updateVolunteerActivity = adminProcedure
-  .input(admin_updateVolunteerActivitySchema)
-  .mutation(async ({ ctx, input }) => {
-    const { activity_id, user_id, hoursPut } = input;
+// const updateVolunteerActivity = adminProcedure
+//   .input(admin_updateVolunteerActivitySchema)
+//   .mutation(async ({ ctx, input }) => {
+//     const { activity_id, user_id, hoursPut } = input;
 
-    return ctx.db.volunteerActivity.update({
-      where: {
-        volunteerId_activityId: {
-          volunteerId: user_id,
-          activityId: activity_id,
-        },
-      },
-      data: {
-        hoursPut,
-      },
-    });
-  });
+//     return ctx.db.volunteerActivity.update({
+//       where: {
+//         volunteerId_activityId: {
+//           volunteerId: user_id,
+//           activityId: activity_id,
+//         },
+//       },
+//       data: {
+//         hoursPut,
+//       },
+//     });
+//   });
 
-const createVolunteerActivity = adminProcedure
-  .input(admin_createVolunteerActivitySchema)
-  .mutation(async ({ ctx, input }) => {
-    const { activity_id, user_id } = input;
+// const createVolunteerActivity = adminProcedure
+//   .input(admin_createVolunteerActivitySchema)
+//   .mutation(async ({ ctx, input }) => {
+//     const { activity_id, user_id } = input;
 
-    return ctx.db.volunteerActivity.create({
-      data: {
-        volunteerId: user_id,
-        activityId: activity_id,
-      },
-    });
-  });
+//     return ctx.db.volunteerActivity.create({
+//       data: {
+//         volunteerId: user_id,
+//         activityId: activity_id,
+//       },
+//     });
+//   });
 
-const deleteVolunteerActivity = adminProcedure
-  .input(admin_deleteVolunteerActivitySchema)
-  .mutation(async ({ ctx, input }) => {
-    const { activity_id, user_id } = input;
+// const deleteVolunteerActivity = adminProcedure
+//   .input(admin_deleteVolunteerActivitySchema)
+//   .mutation(async ({ ctx, input }) => {
+//     const { activity_id, user_id } = input;
 
-    return ctx.db.volunteerActivity.delete({
-      where: {
-        volunteerId_activityId: {
-          volunteerId: user_id,
-          activityId: activity_id,
-        },
-      },
-    });
-  });
+//     return ctx.db.volunteerActivity.delete({
+//       where: {
+//         volunteerId_activityId: {
+//           volunteerId: user_id,
+//           activityId: activity_id,
+//         },
+//       },
+//     });
+//   });
 
-const listVolunteerActivity = adminProcedure.input(
-  admin_listVolunteerActivitySchema
-).query(async ({ ctx, input }) => {
-  const { activity_id, user_id } = input;
+// const listVolunteerActivity = adminProcedure.input(
+//   admin_listVolunteerActivitySchema
+// ).query(async ({ ctx, input }) => {
+//   const { activity_id, user_id } = input;
 
-  return ctx.db.volunteerActivity.findMany({
-    where: {
-      ...(activity_id && {
-        activityId: activity_id,
-      }),
-      ...(user_id && {
-        userId: user_id,
-      }),
-    },
-  });
-});
+//   return ctx.db.volunteerActivity.findMany({
+//     where: {
+//       ...(activity_id && {
+//         activityId: activity_id,
+//       }),
+//       ...(user_id && {
+//         userId: user_id,
+//       }),
+//     },
+//   });
+// });
 
 export const activityRouter = createTRPCRouter({
   create: createActivity,
@@ -421,11 +421,11 @@ export const activityRouter = createTRPCRouter({
   unattend: unattendActivity,
 });
 
-export const volunteerActivityRouter = createTRPCRouter({
-  getOwnActivity: getOwnVolunteerActivity,
-  getOwnActivities: getOwnVolunteerActivities,
-  create: createVolunteerActivity,
-  list: listVolunteerActivity,
-  update: updateVolunteerActivity,
-  delete: deleteVolunteerActivity
-});
+// export const volunteerActivityRouter = createTRPCRouter({
+//   getOwnActivity: getOwnVolunteerActivity,
+//   getOwnActivities: getOwnVolunteerActivities,
+//   create: createVolunteerActivity,
+//   list: listVolunteerActivity,
+//   update: updateVolunteerActivity,
+//   delete: deleteVolunteerActivity
+// });
