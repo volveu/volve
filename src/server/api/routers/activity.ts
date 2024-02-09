@@ -180,7 +180,11 @@ const getActivity = publicProcedure
       include: {
         tags: true,
         npo: true,
-        volunteers: true,
+        volunteers: {
+          include: {
+            volunteer: true,
+          }
+        },
         createdByAdmin: true,
       },
     });

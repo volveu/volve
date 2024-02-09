@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageLayout } from "../../components/Layout";
 import { useSession } from "next-auth/react";
 import { api } from "../../utils/api";
 import { useRouter } from "next/router";
 import { LoadingPage } from "../../components/Loading";
 import dayjs from "dayjs";
-import { type Activity, type User } from "@prisma/client";
+import {
+  type VolunteerActivity,
+  type Activity,
+  type User,
+} from "@prisma/client";
 import toast from "react-hot-toast";
 import { LoadingButton } from "../../components/LoadingButton";
 
@@ -23,8 +27,11 @@ const Activity = () => {
     id: id ?? "",
   });
   const isUserSignedUp =
-    (activity?.volunteers.filter((user) => user.id === session?.user?.id) ?? [])
-      .length > 0;
+    (
+      activity?.volunteers.filter(
+        (user) => user.volunteerId === session?.user?.id,
+      ) ?? []
+    ).length > 0;
 
   if (isLoading || !activity) {
     return (
@@ -87,7 +94,10 @@ const Activity = () => {
           </p>
         </div>
         <div className="flex w-full justify-center">
-          <Attendees attendees={activity.volunteers} />
+          <Attendees
+            attendees={activity.volunteers}
+            attendeesDetails={activity.volunteers.map((v) => v.volunteer)}
+          />
         </div>
         <BottomModal
           id={id ?? ""}
@@ -103,13 +113,75 @@ const Activity = () => {
 
 export default Activity;
 
-const Attendees = ({ attendees }: { attendees: User[] }) => {
-  const [isEdit, setIsEdit] = useState(false);
+const Attendees = ({
+  attendees,
+  attendeesDetails,
+}: {
+  attendees: VolunteerActivity[];
+  attendeesDetails: User[];
+}) => {
+  const [isDirty, setIsDirty] = useState(false);
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
-  const onEdit = () => {
-    setIsEdit(true);
+  const [attendeesState, setAttendeesState] = useState(attendees);
+  const { mutate: updateVolunteerActivity, isLoading: isUpdating } =
+    api.volunteerActivity.update.useMutation();
+
+  const isEqual = (
+    state1: VolunteerActivity[],
+    state2: VolunteerActivity[],
+  ) => {
+    if (state1.length !== state2.length) {
+      return false;
+    }
+    for (let i = 0; i < state1.length; i++) {
+      if (state1[i]?.hoursPut !== state2[i]?.hoursPut) {
+        return false;
+      }
+      if (state1[i]?.volunteerId !== state2[i]?.volunteerId) {
+        return false;
+      }
+      if (state1[i]?.activityId !== state2[i]?.activityId) {
+        return false;
+      }
+    }
+    return true;
   };
+
+  const onCancel = () => {
+    setAttendeesState(attendees);
+    setIsDirty(false);
+  };
+
+  const onSave = () => {
+    attendeesState.forEach((attendee) => {
+      updateVolunteerActivity(
+        {
+          activity_id: attendee.activityId,
+          user_id: attendee.volunteerId,
+          hoursPut: attendee.hoursPut,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Successfully updated attendance");
+            setIsDirty(false);
+          },
+          onError: () => {
+            toast.error("Failed to update attendance");
+          },
+        },
+      );
+    });
+  };
+
+  useEffect(() => {
+    if (isEqual(attendees, attendeesState)) {
+      setIsDirty(false);
+      return;
+    } else {
+      setIsDirty(true);
+    }
+  }, [attendees, attendeesState]);
   return (
     <div className="max-h-[60vh] w-full max-w-md overflow-scroll rounded-lg border border-gray-200 bg-white p-4 shadow sm:p-8 dark:border-gray-700 dark:bg-gray-800">
       <div className="mb-4 flex items-center justify-between">
@@ -117,18 +189,12 @@ const Attendees = ({ attendees }: { attendees: User[] }) => {
           Attendees
         </h5>
         {isAdmin ? (
-          !isEdit ? null : (
+          !isDirty ? null : isUpdating ? (
+            <LoadingButton />
+          ) : (
             <div>
-              <ActionButton
-                color="red"
-                text="Cancel"
-                onClick={() => setIsEdit(false)}
-              />
-              <ActionButton
-                color="green"
-                text="Save"
-                onClick={() => console.log("clicked")}
-              />
+              <ActionButton color="red" text="Cancel" onClick={onCancel} />
+              <ActionButton color="green" text="Save" onClick={onSave} />
             </div>
           )
         ) : null}
@@ -165,7 +231,7 @@ const Attendees = ({ attendees }: { attendees: User[] }) => {
                 )}
               </div>
             </li>
-            {attendees.map((user, index) => (
+            {attendeesDetails.map((user, index) => (
               <li className="py-3 sm:py-4" key={index}>
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -196,16 +262,33 @@ const Attendees = ({ attendees }: { attendees: User[] }) => {
                   {isAdmin && (
                     <div className="inline-flex flex-1 items-center text-base font-semibold text-gray-900 dark:text-white">
                       <VolunteerAttendanceToggle
-                        checked={false}
-                        onCheck={() => console.log("check")}
+                        checked={(attendeesState[index]?.hoursPut ?? 0) > 0}
+                        onCheck={() =>
+                          setAttendeesState(
+                            attendeesState.map((v, i) =>
+                              i === index
+                                ? {
+                                    ...v,
+                                    hoursPut: v.hoursPut > 0 ? v.hoursPut : 1,
+                                  }
+                                : v,
+                            ),
+                          )
+                        }
                       />
                     </div>
                   )}
                   {isAdmin && (
                     <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
                       <VolunteerHoursInput
-                        value={0}
-                        onChange={() => console.log("change")}
+                        value={attendeesState[index]?.hoursPut ?? 0}
+                        onChange={(newValue) =>
+                          setAttendeesState(
+                            attendeesState.map((v, i) =>
+                              i === index ? { ...v, hoursPut: newValue } : v,
+                            ),
+                          )
+                        }
                       />
                     </div>
                   )}
@@ -272,7 +355,7 @@ const BottomModal = ({
 
   const isLoggedIn = session?.user;
   return (
-    <div className="sticky mt-12 w-full max-w-md rounded-lg border border-gray-100 bg-white p-6 shadow [box-shadow:10px_10px_73px_1px_rgba(0,0,0,0.75)] dark:border-gray-700 dark:bg-gray-700">
+    <div className="sticky bottom-[30px] mt-12 w-full max-w-md rounded-lg border border-gray-100 bg-white p-6 shadow [box-shadow:10px_10px_73px_1px_rgba(0,0,0,0.75)] dark:border-gray-700 dark:bg-gray-700">
       <div className="flex flex-row items-center justify-between">
         <div>
           <h5 className="max-w-[50vw] overflow-hidden truncate text-xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -355,15 +438,14 @@ const VolunteerAttendanceToggle = ({
   checked: boolean;
   onCheck: () => void;
 }) => {
-  const [isChecked, setIsChecked] = useState(checked);
   return (
     <label className="relative me-5 inline-flex cursor-pointer items-center">
       <input
         type="checkbox"
         value=""
         className="peer sr-only"
-        checked={isChecked}
-        onChange={() => setIsChecked(!isChecked)}
+        checked={checked}
+        onChange={onCheck}
       />
       <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 peer-focus:ring-green-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-green-800"></div>
     </label>
@@ -375,9 +457,8 @@ const VolunteerHoursInput = ({
   onChange,
 }: {
   value: number;
-  onChange: () => void;
+  onChange: (newValue: number) => void;
 }) => {
-  const [hours, setHours] = useState(value);
   return (
     <div className="mx-auto max-w-xs">
       <div className="relative flex max-w-[5rem] items-center">
@@ -387,8 +468,8 @@ const VolunteerHoursInput = ({
           aria-describedby="helper-text-explanation"
           className="block h-11 w-full rounded-[5px] border-x-0 border-gray-300 bg-gray-50 py-2.5 text-center text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
           placeholder="0"
-          value={hours}
-          onChange={(e) => setHours(Number(e.target.value))}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
         />
       </div>
     </div>
