@@ -8,6 +8,7 @@ import Link from "next/link";
 import type { UserRole } from "types";
 import toast from "react-hot-toast";
 import { api } from "~/utils/api";
+import { generateReport } from "~/server/util/report";
 
 const ProfilePage: NextPage = () => {
   // session is `null` until nextauth fetches user's session data
@@ -206,6 +207,27 @@ const MyImpact = ({ userId }: { userId: string }) => {
     api.user.getHoursVolunteered.useQuery({
       id: userId,
     });
+  const { data: pdfBase64, refetch } = api.user.getPersonalReport.useQuery(
+    undefined,
+    { enabled: false },
+  );
+
+  const generateReport = async () => {
+    let pdfData = pdfBase64;
+
+    if (!pdfData) {
+      const { data } = await refetch();
+
+      if (!data) {
+        return;
+      }
+
+      pdfData = data;
+    }
+
+    window.location.href = "data:application/pdf;base64," + pdfData;
+  };
+
   // TODO: change hardcoding
   const numOfRSVPs = 6;
   if (hrsLoading || numNPOsLoading) return <LoadingSpinner />;
@@ -215,9 +237,12 @@ const MyImpact = ({ userId }: { userId: string }) => {
     <div>
       <div className="flex flex-row justify-between">
         <div className="pb-3 text-xl">My Impact</div>
-        <div className="cursor-pointer rounded-md text-neutral-400 underline">
+        <button
+          className="cursor-pointer rounded-md text-neutral-400 underline"
+          onClick={generateReport}
+        >
           generate report
-        </div>
+        </button>
       </div>
       <div className="text-sm">{hrs} Hours Volunteered</div>
       <div className="text-sm">{numOfRSVPs} RSVPs</div>

@@ -14,6 +14,8 @@ import { db } from "~/server/db";
 import { email_z, id_z, image_z, name_z, password_z, user_z } from "types";
 import { contextProps } from "@trpc/react-query/shared";
 
+import { generateReport } from "~/server/util/report";
+
 const userCreateInput_z = user_z
   .pick({
     name: true,
@@ -163,4 +165,10 @@ export const userRouter = createTRPCRouter({
         data: { role: "USER" },
       });
     }),
+
+  getPersonalReport: protectedProcedure.query(async ({ ctx }) => {
+    const user = ctx.session.user;
+
+    return generateReport(user.name!, 10, []);
+  }),
 });
