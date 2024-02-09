@@ -247,45 +247,45 @@ const createActivity = adminProcedure
     });
   });
 
-// const attendActivity = protectedProcedure
-//   .input(user_volunteerActivitySchema)
-//   .mutation(async ({ ctx, input }) => {
-//     const user_id = ctx.session.user.id;
-//     const { activity_id } = input;
+const attendActivity = protectedProcedure
+  .input(user_volunteerActivitySchema)
+  .mutation(async ({ ctx, input }) => {
+    const user_id = ctx.session.user.id;
+    const { activity_id } = input;
 
-//     if (!user_id) {
-//       // Invalid RPC access
-//       return;
-//     }
+    if (!user_id) {
+      // Invalid RPC access
+      return;
+    }
 
-//     return ctx.db.volunteerActivity.create({
-//       data: {
-//         volunteerId: user_id,
-//         activityId: activity_id,
-//       },
-//     });
-//   });
+    return ctx.db.volunteerActivity.create({
+      data: {
+        volunteerId: user_id,
+        activityId: activity_id,
+      },
+    });
+  });
 
-// const unattendActivity = protectedProcedure
-//   .input(user_volunteerActivitySchema)
-//   .mutation(async ({ ctx, input }) => {
-//     const user_id = ctx.session.user.id;
-//     const { activity_id } = input;
+const unattendActivity = protectedProcedure
+  .input(user_volunteerActivitySchema)
+  .mutation(async ({ ctx, input }) => {
+    const user_id = ctx.session.user.id;
+    const { activity_id } = input;
 
-//     if (!user_id) {
-//       // Invalid RPC access
-//       return;
-//     }
+    if (!user_id) {
+      // Invalid RPC access
+      return;
+    }
 
-//     return ctx.db.volunteerActivity.delete({
-//       where: {
-//         volunteerId_activityId: {
-//           volunteerId: user_id,
-//           activityId: activity_id,
-//         },
-//       },
-//     });
-//   });
+    return ctx.db.volunteerActivity.delete({
+      where: {
+        volunteerId_activityId: {
+          volunteerId: user_id,
+          activityId: activity_id,
+        },
+      },
+    });
+  });
 
 export const activityRouter = createTRPCRouter({
   create: createActivity,
@@ -293,6 +293,6 @@ export const activityRouter = createTRPCRouter({
   list: getActivities,
   update: updateActivity,
   delete: deleteActivity,
-  // attend: attendActivity,
-  // unattend: unattendActivity,
+  attend: attendActivity,
+  unattend: unattendActivity,
 });
