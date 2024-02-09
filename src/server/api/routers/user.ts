@@ -22,7 +22,6 @@ const userCreateInput_z = user_z
     email: true,
     phoneNum: true,
     password: true,
-    role: true,
   })
   .extend({ password: z.string() });
 
@@ -58,7 +57,13 @@ export const userRouter = createTRPCRouter({
         where: { id: input.id },
         select: {
           enrolledActivities: {
-            select: { npoId: true },
+            select: {
+              activity: {
+                select: {
+                  npoId: true,
+                },
+              },
+            },
           },
         },
       });
@@ -66,19 +71,22 @@ export const userRouter = createTRPCRouter({
         throw new TRPCError({ code: "BAD_REQUEST", message: "User not found" });
       }
 
-      const npoIds = data.enrolledActivities;
-      const uniqueNpoCount = new Set(npoIds).size;
+      const npoIdsArray =
+        data?.enrolledActivities?.map(
+          (activity) => activity.activity.npoId,
+        ) || [];
+
+      const uniqueNpoCount = new Set(npoIdsArray).size;
       return uniqueNpoCount;
     }),
   create: publicProcedure
     .input(userCreateInput_z)
     .mutation(async ({ ctx, input }) => {
-      const { password, role, ...values } = input;
+      const { password, ...values } = input;
       const passwordHash = await hashPassword(password);
       try {
         await ctx.db.user.create({
           data: {
-            role: role ?? undefined,
             ...values,
             password: passwordHash,
           },
@@ -141,6 +149,13 @@ export const userRouter = createTRPCRouter({
         where: { id: id },
         data: { role: "ADMIN" },
       });
+
+      // Create an Administrator record
+      await ctx.db.administrator.create({
+        data: {
+          adminId: id,
+        },
+      });
     }),
 
   demoteAdmin: rootProcedure
@@ -161,6 +176,13 @@ export const userRouter = createTRPCRouter({
       await ctx.db.user.update({
         where: { id: id },
         data: { role: "USER" },
+      });
+
+      // Delete the Administrator record
+      await ctx.db.administrator.delete({
+        where: {
+          adminId: id,
+        },
       });
     }),
 });
