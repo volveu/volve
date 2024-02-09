@@ -2,16 +2,20 @@ import { useRouter } from "next/router";
 import { PageLayout } from "../../components/Layout";
 import { api } from "../../utils/api";
 import { LoadingPage } from "../../components/Loading";
-import { VisitNPOButton } from "../npo-management";
+import ActivityCard from "../../components/ActivityCard";
 
 const Npo = () => {
   const router = useRouter();
   const id = Array.isArray(router.query.id)
     ? router.query.id[0]
     : router.query.id;
-  const { data, isLoading, isError } = api.npo.get.useQuery({
+  const { data, isLoading } = api.npo.get.useQuery({
     id: id ?? "",
   });
+  const { data: activities, isLoading: isActivitiesLoading } =
+    api.activity.getActivitiesByNpoId.useQuery({
+      npoId: id ?? "",
+    });
 
   if (isLoading) {
     return (
@@ -72,8 +76,16 @@ const Npo = () => {
         <div className="py-4" />
 
         <div className="text-slate-200">Opportunities</div>
-        {/* TODO: List activities linked to the NPO in cards for public to view the page and see */}
-        {/* or if simple and no time redirect to search activities page */}
+        <div className="py-2" />
+        <div className="flex flex-col gap-[15px]">
+          {isActivitiesLoading ? (
+            <LoadingPage />
+          ) : (
+            activities?.map((activity) => (
+              <ActivityCard key={activity.id} activity={activity} />
+            ))
+          )}
+        </div>
       </div>
     </PageLayout>
   );
