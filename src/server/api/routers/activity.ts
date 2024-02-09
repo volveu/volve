@@ -59,7 +59,7 @@ const updateActivitySchema = createActivitySchema
     id: nonEmptyString,
   });
 
-const user_volunteerActivitySchema = z.object({
+const userActivitySchema = z.object({
   activity_id: nonEmptyString,
 });
 
@@ -247,40 +247,30 @@ const createActivity = adminProcedure
   });
 
 const attendActivity = protectedProcedure
-  .input(user_volunteerActivitySchema)
+  .input(userActivitySchema)
   .mutation(async ({ ctx, input }) => {
     const user_id = ctx.session.user.id;
     const { activity_id } = input;
-
-    if (!user_id) {
-      // Invalid RPC access
-      return;
-    }
-
-    return ctx.db.volunteerActivity.create({
+    return ctx.db.activity.update({
+      where: { id: activity_id },
       data: {
-        volunteerId: user_id,
-        activityId: activity_id,
+        volunteers: {
+          connect: { id: user_id },
+        },
       },
     });
   });
 
 const unattendActivity = protectedProcedure
-  .input(user_volunteerActivitySchema)
+  .input(userActivitySchema)
   .mutation(async ({ ctx, input }) => {
     const user_id = ctx.session.user.id;
     const { activity_id } = input;
-
-    if (!user_id) {
-      // Invalid RPC access
-      return;
-    }
-
-    return ctx.db.volunteerActivity.delete({
-      where: {
-        volunteerId_activityId: {
-          volunteerId: user_id,
-          activityId: activity_id,
+    return ctx.db.activity.update({
+      where: { id: activity_id },
+      data: {
+        volunteers: {
+          disconnect: { id: user_id },
         },
       },
     });
