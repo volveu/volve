@@ -276,6 +276,10 @@ const unattendActivity = protectedProcedure
     });
   });
 
+const getTags = publicProcedure.query(async ({ ctx }) => {
+  return ctx.db.tag.findMany();
+});
+
 export const activityRouter = createTRPCRouter({
   create: createActivity,
   get: getActivity,
@@ -284,4 +288,5 @@ export const activityRouter = createTRPCRouter({
   delete: deleteActivity,
   attend: attendActivity,
   unattend: unattendActivity,
+  tags: getTags,
 });
