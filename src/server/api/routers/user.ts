@@ -58,7 +58,13 @@ export const userRouter = createTRPCRouter({
         where: { id: input.id },
         select: {
           enrolledActivities: {
-            select: { npoId: true },
+            select: {
+              activity: {
+                select: {
+                  npoId: true,
+                },
+              },
+            },
           },
         },
       });
@@ -66,8 +72,12 @@ export const userRouter = createTRPCRouter({
         throw new TRPCError({ code: "BAD_REQUEST", message: "User not found" });
       }
 
-      const npoIds = data.enrolledActivities;
-      const uniqueNpoCount = new Set(npoIds).size;
+      const npoIdsArray =
+        data?.enrolledActivities?.map(
+          (activity) => activity.activity.npoId,
+        ) || [];
+
+      const uniqueNpoCount = new Set(npoIdsArray).size;
       return uniqueNpoCount;
     }),
   create: publicProcedure
