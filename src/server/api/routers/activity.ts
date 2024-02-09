@@ -1,5 +1,3 @@
-import { revalidateTag } from "next/cache";
-import { id_z } from "types";
 import { z } from "zod";
 
 import {
@@ -30,6 +28,7 @@ const createActivitySchema = z.object({
   endTimestamp: nonEmptyDate,
   npoId: nonEmptyString,
   primaryContactInfo: nonEmptyString,
+  location: nonEmptyString,
   tags: z.array(tagSchema).optional(),
   location: nonEmptyString,
   // optional, capacity should be non-negative
@@ -84,9 +83,11 @@ const admin_deleteVolunteerActivitySchema = user_volunteerActivitySchema.extend(
   },
 );
 
-const admin_listVolunteerActivitySchema = user_volunteerActivitySchema.extend({
-  user_id: nonEmptyString
-}).partial();
+const admin_listVolunteerActivitySchema = user_volunteerActivitySchema
+  .extend({
+    user_id: nonEmptyString,
+  })
+  .partial();
 
 // NOTE: might want to add pagination using take & skip
 const getActivities = publicProcedure
@@ -311,27 +312,29 @@ const unattendActivity = protectedProcedure
     });
   });
 
-const getOwnVolunteerActivity = protectedProcedure.input(user_volunteerActivitySchema).query(async ({ ctx, input }) => {
-  const user_id = ctx.session.user.id;
-  const { activity_id } = input;
+const getOwnVolunteerActivity = protectedProcedure
+  .input(user_volunteerActivitySchema)
+  .query(async ({ ctx, input }) => {
+    const user_id = ctx.session.user.id;
+    const { activity_id } = input;
 
-  if (!user_id) {
-    // Invalid RPC access
-    return;
-  }
+    if (!user_id) {
+      // Invalid RPC access
+      return;
+    }
 
-  return ctx.db.volunteerActivity.findUniqueOrThrow({
-    where: {
-      volunteerId_activityId: {
-        volunteerId: user_id,
-        activityId: activity_id,
+    return ctx.db.volunteerActivity.findUniqueOrThrow({
+      where: {
+        volunteerId_activityId: {
+          volunteerId: user_id,
+          activityId: activity_id,
+        },
       },
-    },
-    include: {
-      activity: true,
-    },
+      include: {
+        activity: true,
+      },
+    });
   });
-});
 
 const getOwnVolunteerActivities = protectedProcedure.query(async ({ ctx }) => {
   const user_id = ctx.session.user.id;
@@ -397,21 +400,25 @@ const deleteVolunteerActivity = adminProcedure
     });
   });
 
-const listVolunteerActivity = adminProcedure.input(
-  admin_listVolunteerActivitySchema
-).query(async ({ ctx, input }) => {
-  const { activity_id, user_id } = input;
+const listVolunteerActivity = adminProcedure
+  .input(admin_listVolunteerActivitySchema)
+  .query(async ({ ctx, input }) => {
+    const { activity_id, user_id } = input;
 
-  return ctx.db.volunteerActivity.findMany({
-    where: {
-      ...(activity_id && {
-        activityId: activity_id,
-      }),
-      ...(user_id && {
-        userId: user_id,
-      }),
-    },
+    return ctx.db.volunteerActivity.findMany({
+      where: {
+        ...(activity_id && {
+          activityId: activity_id,
+        }),
+        ...(user_id && {
+          userId: user_id,
+        }),
+      },
+    });
   });
+
+const getTags = publicProcedure.query(async ({ ctx }) => {
+  return ctx.db.tag.findMany();
 });
 
 export const activityRouter = createTRPCRouter({
@@ -422,6 +429,7 @@ export const activityRouter = createTRPCRouter({
   delete: deleteActivity,
   attend: attendActivity,
   unattend: unattendActivity,
+  tags: getTags,
 });
 
 export const volunteerActivityRouter = createTRPCRouter({
@@ -430,5 +438,5 @@ export const volunteerActivityRouter = createTRPCRouter({
   create: createVolunteerActivity,
   list: listVolunteerActivity,
   update: updateVolunteerActivity,
-  delete: deleteVolunteerActivity
-})
+  delete: deleteVolunteerActivity,
+});
