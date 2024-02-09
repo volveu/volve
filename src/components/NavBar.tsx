@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import { VolveBrandNameLogo } from "~/assets/volve-brand-name-logo";
 
 const NavBar = () => {
   const router = useRouter();
@@ -37,11 +38,14 @@ const NavBar = () => {
   };
 
   return (
-    <div className="relative bg-slate-800 py-3" ref={node}>
-      <div className="">
+    <>
+      <div
+        className="relative flex flex-row items-center justify-between bg-slate-800 py-3"
+        ref={node}
+      >
         <button
           onClick={toggleDropdown}
-          className="px-3 text-white hover:text-gray-300"
+          className="w-12 flex-grow-0 px-3 text-white hover:text-gray-300"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +62,13 @@ const NavBar = () => {
             />
           </svg>
         </button>
+        <div className="flex flex-grow flex-row justify-center">
+          <VolveBrandNameLogo className="h-6 fill-slate-100" />
+        </div>
+        {/* placeholder for rightside so that logo is aligned in the middle */}
+        <div className="w-12" />
       </div>
+      {/*  */}
       <div
         className={`h-m-[90vw] absolute z-50 flex w-[300px] transform flex-col space-y-1 rounded-md bg-slate-700 p-5 shadow-xl shadow-black transition-transform duration-150 ease-in-out ${isDropdownOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
@@ -181,7 +191,7 @@ const NavBar = () => {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 };
 
