@@ -1,5 +1,3 @@
-import { revalidateTag } from "next/cache";
-import { id_z } from "types";
 import { z } from "zod";
 
 import {
@@ -30,6 +28,7 @@ const createActivitySchema = z.object({
   endTimestamp: nonEmptyDate,
   npoId: nonEmptyString,
   primaryContactInfo: nonEmptyString,
+  location: nonEmptyString,
   tags: z.array(tagSchema).optional(),
   // optional, capacity should be non-negative
   capacity: z.number().nonnegative().optional(),
@@ -54,14 +53,40 @@ const updateTagsSchema = {
 
 const updateActivitySchema = createActivitySchema
   .extend(updateTagsSchema)
+  .extend({ isVisible: z.boolean() })
   .partial()
   .extend({
     id: nonEmptyString,
   });
 
-const userActivitySchema = z.object({
+const user_volunteerActivitySchema = z.object({
   activity_id: nonEmptyString,
 });
+
+const admin_updateVolunteerActivitySchema = user_volunteerActivitySchema.extend(
+  {
+    hoursPut: z.number().nonnegative().optional(),
+    user_id: nonEmptyString,
+  },
+);
+
+const admin_createVolunteerActivitySchema = user_volunteerActivitySchema.extend(
+  {
+    user_id: nonEmptyString,
+  },
+);
+
+const admin_deleteVolunteerActivitySchema = user_volunteerActivitySchema.extend(
+  {
+    user_id: nonEmptyString,
+  },
+);
+
+const admin_listVolunteerActivitySchema = user_volunteerActivitySchema
+  .extend({
+    user_id: nonEmptyString,
+  })
+  .partial();
 
 // NOTE: might want to add pagination using take & skip
 const getActivities = publicProcedure
@@ -155,7 +180,11 @@ const getActivity = publicProcedure
       include: {
         tags: true,
         npo: true,
-        volunteers: true,
+        volunteers: {
+          include: {
+            volunteer: true,
+          }
+        },
         createdByAdmin: true,
       },
     });
@@ -247,34 +276,153 @@ const createActivity = adminProcedure
   });
 
 const attendActivity = protectedProcedure
-  .input(userActivitySchema)
+  .input(user_volunteerActivitySchema)
   .mutation(async ({ ctx, input }) => {
     const user_id = ctx.session.user.id;
     const { activity_id } = input;
-    return ctx.db.activity.update({
-      where: { id: activity_id },
+
+    if (!user_id) {
+      // Invalid RPC access
+      return;
+    }
+
+    return ctx.db.volunteerActivity.create({
       data: {
-        volunteers: {
-          connect: { id: user_id },
-        },
+        volunteerId: user_id,
+        activityId: activity_id,
       },
     });
   });
 
 const unattendActivity = protectedProcedure
-  .input(userActivitySchema)
+  .input(user_volunteerActivitySchema)
   .mutation(async ({ ctx, input }) => {
     const user_id = ctx.session.user.id;
     const { activity_id } = input;
-    return ctx.db.activity.update({
-      where: { id: activity_id },
-      data: {
-        volunteers: {
-          disconnect: { id: user_id },
+
+    if (!user_id) {
+      // Invalid RPC access
+      return;
+    }
+
+    return ctx.db.volunteerActivity.delete({
+      where: {
+        volunteerId_activityId: {
+          volunteerId: user_id,
+          activityId: activity_id,
         },
       },
     });
   });
+
+const getOwnVolunteerActivity = protectedProcedure
+  .input(user_volunteerActivitySchema)
+  .query(async ({ ctx, input }) => {
+    const user_id = ctx.session.user.id;
+    const { activity_id } = input;
+
+    if (!user_id) {
+      // Invalid RPC access
+      return;
+    }
+
+    return ctx.db.volunteerActivity.findUniqueOrThrow({
+      where: {
+        volunteerId_activityId: {
+          volunteerId: user_id,
+          activityId: activity_id,
+        },
+      },
+      include: {
+        activity: true,
+      },
+    });
+  });
+
+const getOwnVolunteerActivities = protectedProcedure.query(async ({ ctx }) => {
+  const user_id = ctx.session.user.id;
+
+  if (!user_id) {
+    // Invalid RPC access
+    return;
+  }
+
+  return ctx.db.volunteerActivity.findMany({
+    where: {
+      volunteerId: user_id,
+    },
+    include: {
+      activity: true,
+    },
+  });
+});
+
+const updateVolunteerActivity = adminProcedure
+  .input(admin_updateVolunteerActivitySchema)
+  .mutation(async ({ ctx, input }) => {
+    const { activity_id, user_id, hoursPut } = input;
+
+    return ctx.db.volunteerActivity.update({
+      where: {
+        volunteerId_activityId: {
+          volunteerId: user_id,
+          activityId: activity_id,
+        },
+      },
+      data: {
+        hoursPut,
+      },
+    });
+  });
+
+const createVolunteerActivity = adminProcedure
+  .input(admin_createVolunteerActivitySchema)
+  .mutation(async ({ ctx, input }) => {
+    const { activity_id, user_id } = input;
+
+    return ctx.db.volunteerActivity.create({
+      data: {
+        volunteerId: user_id,
+        activityId: activity_id,
+      },
+    });
+  });
+
+const deleteVolunteerActivity = adminProcedure
+  .input(admin_deleteVolunteerActivitySchema)
+  .mutation(async ({ ctx, input }) => {
+    const { activity_id, user_id } = input;
+
+    return ctx.db.volunteerActivity.delete({
+      where: {
+        volunteerId_activityId: {
+          volunteerId: user_id,
+          activityId: activity_id,
+        },
+      },
+    });
+  });
+
+const listVolunteerActivity = adminProcedure
+  .input(admin_listVolunteerActivitySchema)
+  .query(async ({ ctx, input }) => {
+    const { activity_id, user_id } = input;
+
+    return ctx.db.volunteerActivity.findMany({
+      where: {
+        ...(activity_id && {
+          activityId: activity_id,
+        }),
+        ...(user_id && {
+          userId: user_id,
+        }),
+      },
+    });
+  });
+
+const getTags = publicProcedure.query(async ({ ctx }) => {
+  return ctx.db.tag.findMany();
+});
 
 export const activityRouter = createTRPCRouter({
   create: createActivity,
@@ -284,4 +432,14 @@ export const activityRouter = createTRPCRouter({
   delete: deleteActivity,
   attend: attendActivity,
   unattend: unattendActivity,
+  tags: getTags,
+});
+
+export const volunteerActivityRouter = createTRPCRouter({
+  getOwnActivity: getOwnVolunteerActivity,
+  getOwnActivities: getOwnVolunteerActivities,
+  create: createVolunteerActivity,
+  list: listVolunteerActivity,
+  update: updateVolunteerActivity,
+  delete: deleteVolunteerActivity,
 });
