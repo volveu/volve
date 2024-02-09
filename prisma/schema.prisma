@@ -59,7 +59,7 @@ model User {
   phoneNum           String?
   password           String?
   role               Role                @default(USER)
-  enrolledActivities VolunteerActivity[]
+  enrolledActivities Activity[]
 
   administrator Administrator?
 
@@ -96,7 +96,7 @@ model Activity {
 
   capacity Int? // C
 
-  volunteers       VolunteerActivity[]
+  volunteers       User[]
   createdByAdmin   Administrator       @relation(fields: [createdByAdminId], references: [adminId])
   createdByAdminId String // C
 
@@ -108,18 +108,18 @@ model Activity {
   @@index([npoId])
 }
 
-model VolunteerActivity {
-  volunteerId String
-  activityId  String
-  hoursPut    Int    @default(0)
+// model VolunteerActivity {
+//   volunteerId String
+//   activityId  String
+//   hoursPut    Int    @default(0)
 
-  volunteer User     @relation(fields: [volunteerId], references: [id])
-  activity  Activity @relation(fields: [activityId], references: [id])
+//   volunteer User     @relation(fields: [volunteerId], references: [id])
+//   activity  Activity @relation(fields: [activityId], references: [id])
 
-  @@id([volunteerId, activityId])
-  @@unique([volunteerId, activityId])
-  @@index([activityId])
-}
+//   @@id([volunteerId, activityId])
+//   @@unique([volunteerId, activityId])
+//   @@index([activityId])
+// }
 
 model Tag {
   title      String     @id
