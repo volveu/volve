@@ -22,7 +22,6 @@ const userCreateInput_z = user_z
     email: true,
     phoneNum: true,
     password: true,
-    role: true,
   })
   .extend({ password: z.string() });
 
@@ -73,12 +72,11 @@ export const userRouter = createTRPCRouter({
   create: publicProcedure
     .input(userCreateInput_z)
     .mutation(async ({ ctx, input }) => {
-      const { password, role, ...values } = input;
+      const { password, ...values } = input;
       const passwordHash = await hashPassword(password);
       try {
         await ctx.db.user.create({
           data: {
-            role: role ?? undefined,
             ...values,
             password: passwordHash,
           },
@@ -141,6 +139,13 @@ export const userRouter = createTRPCRouter({
         where: { id: id },
         data: { role: "ADMIN" },
       });
+
+      // Create an Administrator record
+      await ctx.db.administrator.create({
+        data: {
+          adminId: id,
+        },
+      });
     }),
 
   demoteAdmin: rootProcedure
@@ -161,6 +166,13 @@ export const userRouter = createTRPCRouter({
       await ctx.db.user.update({
         where: { id: id },
         data: { role: "USER" },
+      });
+
+      // Delete the Administrator record
+      await ctx.db.administrator.delete({
+        where: {
+          adminId: id,
+        },
       });
     }),
 });

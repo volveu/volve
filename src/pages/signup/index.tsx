@@ -36,7 +36,6 @@ const SignUp = () => {
     const email = data.get("email") as string;
     const password = data.get("password") as string;
     const confirmPassword = data.get("confirm-password") as string;
-    const role = data.get("role") as "USER" | "ADMIN";
     if (confirmPassword != password) {
       toast.error("Passwords do not match");
       return null;
@@ -47,7 +46,6 @@ const SignUp = () => {
       email,
       password,
       image: null,
-      role,
       aboutMe: null,
       phoneNum: null,
     });
@@ -149,18 +147,6 @@ const SignUp = () => {
                     className="focus:ring-primary-600 focus:border-primary-600 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     required
                   />
-                </div>
-                <div>
-                  <span className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                    Select your role from the options below.
-                  </span>
-                  <select
-                    className="focus:ring-primary-600 focus:border-primary-600 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                    name="role"
-                  >
-                    <option value="USER">Volunteer</option>
-                    <option value="ADMIN">Administrator</option>
-                  </select>
                 </div>
                 <div className="py-3"></div>
 
