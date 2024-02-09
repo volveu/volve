@@ -90,6 +90,7 @@ model Activity {
     endTimestamp   DateTime // C
     isVisible      Boolean  @default(true)
     tags           Tag[]
+    location       String // C
 
     capacity Int? // C
 

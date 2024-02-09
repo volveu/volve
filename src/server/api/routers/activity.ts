@@ -30,6 +30,7 @@ const createActivitySchema = z.object({
   endTimestamp: nonEmptyDate,
   npoId: nonEmptyString,
   primaryContactInfo: nonEmptyString,
+  location: nonEmptyString,
   tags: z.array(tagSchema).optional(),
   // optional, capacity should be non-negative
   capacity: z.number().nonnegative().optional(),
