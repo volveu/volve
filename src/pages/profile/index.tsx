@@ -177,7 +177,7 @@ const AwardBadgesForHours = ({ userId }: AwardBadgeProps) => {
           return (
             <img
               onClick={() =>
-                handleClick({ locked: isNextTier, ...logoDesc[i] })
+                handleClick({ locked: isNextTier, ...logoDesc[i]! })
               }
               key={i}
               className={`${isNextTier && "opacity-40"} ${i < nextTierIdx && "border-emerald-500"} h-12 w-12 cursor-pointer rounded-full border-2 bg-slate-200 p-1 hover:scale-105`}
@@ -259,7 +259,7 @@ const AwardBadgesForNPOsHelped = ({ userId }: AwardBadgeNPOsProps) => {
           return (
             <img
               onClick={() =>
-                handleClick({ locked: isNextTier, ...logoDesc[i] })
+                handleClick({ locked: isNextTier, ...logoDesc[i]! })
               }
               key={i}
               className={`${isNextTier && "opacity-40"} ${i < nextTierIdx && "border-emerald-500"} h-12 w-12 cursor-pointer rounded-full border-2 bg-slate-200 p-1 hover:scale-105`}
