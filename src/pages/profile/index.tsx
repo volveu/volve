@@ -8,6 +8,7 @@ import Link from "next/link";
 import type { UserRole } from "types";
 import toast from "react-hot-toast";
 import { api } from "~/utils/api";
+import { BlockedBadge } from "~/assets/BlockedBadge";
 
 const ProfilePage: NextPage = () => {
   // session is `null` until nextauth fetches user's session data
@@ -59,46 +60,48 @@ const ProfilePage: NextPage = () => {
           />
         </div>
         {/* spacer */}
-        <div className="relative h-[64px]">
-          <div className="absolute right-0 top-0 m-2 p-2">
-            <Link
-              href="/profile/edit"
-              className="rounded-md text-neutral-400 underline"
-            >
-              edit profile
-            </Link>
-          </div>
-        </div>
-        <div className="p-4">
-          <div className="text-2xl font-bold">{name}</div>
-          <div className="">{email}</div>
-          {session.user.role == "ADMIN" && (
-            <div className="mt-1 inline-block rounded bg-gray-200 px-2 text-blue-600">
-              administrator
+        <div className="p-2">
+          <div className="relative h-[64px]">
+            <div className="absolute right-0 top-0 m-2 p-2">
+              <Link
+                href="/profile/edit"
+                className="rounded-md text-neutral-400 underline"
+              >
+                edit profile
+              </Link>
             </div>
-          )}
-          <div className="py-2" />
-          <AwardBadgesForHours userId={userData.id} />
+          </div>
+          <div className="p-4">
+            <div className="text-2xl font-bold">{name}</div>
+            <div className="">{email}</div>
+            {session.user.role == "ADMIN" && (
+              <div className="mt-1 inline-block rounded bg-gray-200 px-2 text-blue-600">
+                administrator
+              </div>
+            )}
+            <div className="py-2" />
+            <AwardBadgesForHours userId={userData.id} />
+            <div className="py-1" />
+            <AwardBadgesForNPOsHelped userId={userData.id} />
+          </div>
           <div className="py-1" />
-          <AwardBadgesForNPOsHelped userId={userData.id} />
-        </div>
-        <div className="py-1" />
-        <hr className="h-px border-0 bg-gray-700" />
-        <div className="py-3" />
-        <div className="border-px rounded-2xl border-solid border-slate-400 bg-slate-800 p-4">
-          <MyImpact userId={userData.id} />
-        </div>
-        <div className="py-2" />
+          <hr className="h-px border-0 bg-gray-700" />
+          <div className="py-3" />
+          <div className="border-px rounded-2xl border-solid border-slate-400 bg-slate-800 p-4">
+            <MyImpact userId={userData.id} />
+          </div>
+          <div className="py-2" />
 
-        {/* <div className="p-4">
+          {/* <div className="p-4">
           <div className="text-xl">My Interests</div>
           <div className="text-sm"></div>
         </div> */}
-        <div className="p-4">
-          <div className="text-xl">About Me</div>
-          {aboutMe && <div className="text-sm">{aboutMe}</div>}
+          <div className="p-4">
+            <div className="text-xl">About Me</div>
+            {aboutMe && <div className="text-sm">{aboutMe}</div>}
+          </div>
+          <div className="py-6" />
         </div>
-        <div className="py-6" />
       </PageLayout>
     </>
   );
@@ -112,41 +115,78 @@ const AwardBadgesForHours = ({ userId }: AwardBadgeProps) => {
   if (isLoading) return <LoadingSpinner />;
   if (hrs == undefined) return null;
 
-  const BlockedBadge = (key?: string) => (
-    <div key={key} className="h-12 w-12 rounded-full bg-slate-700"></div>
-  );
-
   const tiersInHours = [5, 10, 20, 50, 100, 9999];
   const logos = [
-    "https://picsum.photos/300/300",
-    "https://picsum.photos/300/300",
-    "https://picsum.photos/300/300",
-    "https://picsum.photos/300/300",
-    "https://picsum.photos/300/300",
+    "/assets/merlion.png",
+    "/assets/hawkerstore.png",
+    "/assets/gardensbythebay.jpg",
+    "/assets/marinabayskyline.jpg",
+    "/assets/sentosa.jpg",
+  ];
+  const logoDesc = [
+    { heading: "Merlion Spirit", subtitle: "Protect and cherish (5 hours)" },
+    {
+      heading: "Hawker Hero",
+      subtitle: "Share the taste of giving (10 hours)",
+    },
+    {
+      heading: "Gardens by the Bay Bloom",
+      subtitle: "Make Singapore blossom (20 hours)",
+    },
+    {
+      heading: "Marina Bay Skyline",
+      subtitle: "Reach for new heights (50 hours)",
+    },
+    {
+      heading: "Sentosa Sun",
+      subtitle: "Light up lives with your service (100 hours)",
+    },
   ];
   const nextTierIdx = tiersInHours.findIndex((n) => n > hrs);
 
-  const handleClick = () => {
-    toast("IMPLEMENT THIS");
+  const handleClick = ({
+    heading,
+    subtitle,
+    locked,
+  }: {
+    heading: string;
+    subtitle: string;
+    locked: boolean;
+  }) => {
+    if (locked) {
+      toast.error("badge has yet to be unlocked", {
+        icon: "🔒",
+        id: heading,
+        style: { background: "black", color: "grey" },
+      });
+      return;
+    }
+    toast.success(`${heading}:\n ${subtitle}`, {
+      icon: "🎖️",
+      id: heading,
+      style: { background: "grey", color: "white" },
+      duration: 5000,
+    });
   };
 
   return (
     <div className="flex gap-2">
       {logos.map((imgUrl, i) => {
+        const isNextTier = i == nextTierIdx;
         if (i <= nextTierIdx) {
           return (
-            <Image
-              onClick={handleClick}
+            <img
+              onClick={() =>
+                handleClick({ locked: isNextTier, ...logoDesc[i]! })
+              }
               key={i}
-              className={`${i == nextTierIdx && "opacity-40"} ${i < nextTierIdx && "border-green-700"} h-12 w-12 rounded-full border-2`}
+              className={`${isNextTier && "opacity-40"} ${i < nextTierIdx && "border-emerald-500"} h-12 w-12 cursor-pointer rounded-full border-2 bg-slate-200 p-1 hover:scale-105`}
               src={imgUrl}
               alt={`Badge_${i}`}
-              height={20}
-              width={20}
             />
           );
         } else {
-          return BlockedBadge(`${i}`);
+          return <BlockedBadge key={`${i}`} />;
         }
       })}
     </div>
@@ -160,39 +200,75 @@ const AwardBadgesForNPOsHelped = ({ userId }: AwardBadgeNPOsProps) => {
   if (isLoading) return <LoadingSpinner />;
   if (numOfNPOsHelped == undefined) return null;
 
-  const BlockedBadge = (key?: string) => (
-    <div key={key} className="h-12 w-12 rounded-full bg-slate-700"></div>
-  );
-
   const tiersInNPOs = [1, 3, 5, 10, 9999];
   const logos = [
-    "https://picsum.photos/300/300",
-    "https://picsum.photos/300/300",
-    "https://picsum.photos/300/300",
-    "https://picsum.photos/300/300",
+    "/assets/cocktail.png",
+    "/assets/trishaw.png",
+    "/assets/laksa.png",
+    "/assets/spices.png",
+  ];
+  const logoDesc = [
+    {
+      heading: "Singapore Sling",
+      subtitle: "Mix and match your causes (1 NPO)",
+    },
+    {
+      heading: "Trishaw Tour",
+      subtitle: "Explore different communities (3 NPOs)",
+    },
+    {
+      heading: "Katong Laksa",
+      subtitle: "Combine tradition with service (5 NPOs)",
+    },
+    {
+      heading: "Little India Spice",
+      subtitle: "Add yourunique fabor to the community (10 NPOs)",
+    },
   ];
   const nextTierIdx = tiersInNPOs.findIndex((n) => n > numOfNPOsHelped);
-  const handleClick = () => {
-    toast("IMPLEMENT THIS");
+  const handleClick = ({
+    heading,
+    subtitle,
+    locked,
+  }: {
+    heading: string;
+    subtitle: string;
+    locked: boolean;
+  }) => {
+    if (locked) {
+      toast.error("badge has yet to be unlocked", {
+        icon: "🔒",
+        id: heading,
+        style: { background: "black", color: "grey" },
+      });
+      return;
+    }
+    toast.success(`${heading}:\n ${subtitle}`, {
+      icon: "🏅",
+      id: heading,
+      style: { background: "grey", color: "white" },
+      duration: 5000,
+    });
   };
 
   return (
     <div className="flex gap-2">
       {logos.map((imgUrl, i) => {
+        const isNextTier = i == nextTierIdx;
         if (i <= nextTierIdx) {
           return (
-            <Image
-              onClick={handleClick}
+            <img
+              onClick={() =>
+                handleClick({ locked: isNextTier, ...logoDesc[i]! })
+              }
               key={i}
-              className={`${i == nextTierIdx && "opacity-40"} ${i < nextTierIdx && "border-green-700"} h-12 w-12 rounded-full border-2`}
+              className={`${isNextTier && "opacity-40"} ${i < nextTierIdx && "border-emerald-500"} h-12 w-12 cursor-pointer rounded-full border-2 bg-slate-200 p-1 hover:scale-105`}
               src={imgUrl}
               alt={`Badge_${i}`}
-              height={20}
-              width={20}
             />
           );
         } else {
-          return BlockedBadge(`${i}`);
+          return <BlockedBadge key={`${i}`} />;
         }
       })}
     </div>
@@ -209,7 +285,7 @@ const MyImpact = ({ userId }: { userId: string }) => {
   // TODO: change hardcoding
   const numOfRSVPs = 6;
   if (hrsLoading || numNPOsLoading) return <LoadingSpinner />;
-  if (hrs == undefined || numOfNPOsParticipationCount) return null;
+  if (hrs == undefined || numOfNPOsParticipationCount == null) return null;
 
   return (
     <div>

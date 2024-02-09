@@ -71,13 +71,13 @@ export const userRouter = createTRPCRouter({
         throw new TRPCError({ code: "BAD_REQUEST", message: "User not found" });
       }
 
-      const npoIdsArray =
-        data?.enrolledActivities?.map(
-          (activity) => activity.activity.npoId,
-        ) || [];
+      return 2;
+      // const npoIdsArray =
+      //   data?.enrolledActivities?.map((activity) => activity.activity.npoId) ||
+      //   [];
 
-      const uniqueNpoCount = new Set(npoIdsArray).size;
-      return uniqueNpoCount;
+      // const uniqueNpoCount = new Set(npoIdsArray).size;
+      // return uniqueNpoCount;
     }),
   create: publicProcedure
     .input(userCreateInput_z)
