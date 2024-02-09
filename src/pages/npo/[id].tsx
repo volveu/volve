@@ -82,11 +82,7 @@ const Npo = () => {
             <LoadingPage />
           ) : (
             activities?.map((activity) => (
-              <ActivityCard
-                key={activity.id}
-                activity={activity}
-                onEdit={() => console.log("no")}
-              />
+              <ActivityCard key={activity.id} activity={activity} />
             ))
           )}
         </div>

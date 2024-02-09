@@ -9,7 +9,7 @@ const ActivityCard = ({
   onEdit,
 }: {
   activity: Activity;
-  onEdit: () => void;
+  onEdit?: () => void;
 }) => {
   const { data: session } = useSession();
   const { data: npo } = api.npo.get.useQuery({ id: activity.npoId });
@@ -73,7 +73,7 @@ const ActivityCard = ({
           />
         </svg>
       </a>
-      {isAdmin && <EditButton onEdit={onEdit} />}
+      {isAdmin && onEdit && <EditButton onEdit={onEdit} />}
     </div>
   );
 };
