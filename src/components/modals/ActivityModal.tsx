@@ -29,6 +29,7 @@ const ActivityModal: FC<ActivityModalProps> = ({
   const [tagsSelected, setTagsSelected] = useState<Tag[]>([]);
   const [capacity, setCapacity] = useState<number | undefined>(undefined);
   const [npoId, setNpoId] = useState<string>("");
+  const [npoName, setNpoName] = useState("");
   const [location, setLocation] = useState("");
   const [startDateTime, setStartDateTime] = useState<Dayjs>(
     dayjs().add(1, "hour"),
@@ -54,6 +55,7 @@ const ActivityModal: FC<ActivityModalProps> = ({
       setTagsSelected(activityData.tags);
       setCapacity(activityData.capacity ?? undefined);
       setNpoId(activityData.npoId);
+      setNpoName(activityData.npo.name);
       setLocation(activityData.location);
       setStartDateTime(dayjs(activityData.startTimestamp));
       setEndDateTime(dayjs(activityData.endTimestamp));
@@ -64,6 +66,7 @@ const ActivityModal: FC<ActivityModalProps> = ({
       setTagsSelected([]);
       setCapacity(undefined);
       setNpoId("");
+      setNpoName("");
       setLocation("");
       setStartDateTime(dayjs().add(1, "hour"));
       setEndDateTime(dayjs().add(2, "hour"));
@@ -191,12 +194,17 @@ const ActivityModal: FC<ActivityModalProps> = ({
                         </label>
                         <input
                           list="npos"
-                          value={npoData?.find((npo) => npo.id === npoId)?.name}
+                          value={
+                            npoData?.find((npo) => npo.id === npoId)?.name ??
+                            npoName
+                          }
                           onChange={(e) => {
                             const npo = npoData?.find(
                               (npo) => npo.name === e.target.value,
                             );
                             if (npo) setNpoId(npo.id);
+                            else setNpoId("");
+                            setNpoName(e.target.value);
                           }}
                           className="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
                         ></input>
