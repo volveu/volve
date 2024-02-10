@@ -3,6 +3,7 @@ import EditButton from "./EditButton";
 import { type Activity } from "@prisma/client";
 import dayjs from "dayjs";
 import { api } from "../utils/api";
+import { useRouter } from "next/router";
 
 const ActivityCard = ({
   activity,
@@ -14,12 +15,19 @@ const ActivityCard = ({
   const { data: session } = useSession();
   const { data: npo } = api.npo.get.useQuery({ id: activity.npoId });
   const isAdmin = session?.user?.role === "ADMIN";
+  const router = useRouter();
+  const handleViewActivity = (a_id: string) => {
+    void router.push(`/activities/${a_id}`);
+  };
   return (
-    <div className="relative w-[90vw] rounded-lg border border-gray-200 bg-white p-6 shadow md:w-[50vw] md:max-w-xl dark:border-gray-700 dark:bg-gray-800">
+    <div
+      onClick={() => handleViewActivity(activity.id)}
+      className="relative w-[90vw] cursor-pointer rounded-lg border border-gray-200 bg-white p-4 py-6 shadow hover:opacity-90 md:w-[50vw] md:max-w-full md:px-9 dark:border-gray-700 dark:bg-gray-800"
+    >
       <div className="mb-[5px] flex flex-row items-center gap-[7px]">
         <p className="text-md font-thin opacity-[75%]">{`${dayjs(activity.startTimestamp).format("DD-MMM HH:mm")} - ${dayjs(activity.endTimestamp).format("DD-MMM HH:mm")}`}</p>
       </div>
-      <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+      <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 opacity-90 dark:text-white">
         {activity.title}
       </h5>
       <div className="flex flex-row items-center gap-[7px]">
@@ -52,7 +60,7 @@ const ActivityCard = ({
       <div className="mb-3 max-h-[10vh] overflow-scroll font-normal text-gray-700 dark:text-gray-400">
         {activity.description}
       </div>
-      <a
+      {/* <a
         href={`/activities/${activity.id}`}
         className="inline-flex items-center rounded-lg bg-blue-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
@@ -72,7 +80,7 @@ const ActivityCard = ({
             d="M1 5h12m0 0L9 1m4 4L9 9"
           />
         </svg>
-      </a>
+      </a> */}
       {isAdmin && onEdit && <EditButton onEdit={onEdit} />}
     </div>
   );

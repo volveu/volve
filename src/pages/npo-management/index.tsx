@@ -126,7 +126,7 @@ const NPOCard = ({
   const handleViewNPO = () => router.push(`npo/${id}`);
   const openWebsite = (site: string) => window.open(site, "_blank");
   return (
-    <div className="relative flex w-[90vw] flex-row items-center gap-4 rounded-2xl bg-white p-4 sm:p-6 md:w-[50vw] md:max-w-xl md:flex-row dark:bg-neutral-700">
+    <div className="relative flex w-[90vw] flex-row items-center gap-4 rounded-2xl bg-white p-4 sm:p-6 md:w-[50vw] md:max-w-xl md:flex-row dark:bg-slate-700">
       <div className="hidden h-36 w-36 flex-shrink-0 flex-grow-0 overflow-hidden rounded-2xl bg-slate-100 sm:block">
         {/* using img cos need to configure Next to accept specific domains but not sure which domains these are coming from */}
         {/* eslint-disable-next-line @next/next/no-img-element  */}
