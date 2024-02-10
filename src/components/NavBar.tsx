@@ -155,16 +155,6 @@ const NavBar = () => {
         <div className="py-1" />
         <div className="mx-3 border-b-2 border-slate-600" />
         <div className="py-1" />
-
-        {session && (
-          <Link
-            href="/settings"
-            onClick={closeDropdown}
-            className="flex flex-[1_0_0%] items-center justify-start whitespace-nowrap rounded-md bg-white/10 px-4 py-1 text-white no-underline transition hover:bg-white/20"
-          >
-            Settings
-          </Link>
-        )}
         {!session && (
           <Link
             href="/signup"

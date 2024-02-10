@@ -355,7 +355,7 @@ const BottomModal = ({
 
   const isLoggedIn = session?.user;
   return (
-    <div className="sticky bottom-[30px] mt-12 w-full max-w-md rounded-lg border border-gray-100 bg-white p-6 shadow [box-shadow:10px_10px_73px_1px_rgba(0,0,0,0.75)] dark:border-gray-700 dark:bg-gray-700">
+    <div className="sticky bottom-[30px] mt-12 w-full max-w-md rounded-lg border border-gray-100 bg-white p-6 opacity-80 shadow [box-shadow:10px_10px_73px_1px_rgba(0,0,0,0.75)] dark:border-gray-700 dark:bg-gray-700">
       <div className="flex flex-row items-center justify-between">
         <div>
           <h5 className="max-w-[50vw] overflow-hidden truncate text-xl font-bold tracking-tight text-gray-900 dark:text-white">

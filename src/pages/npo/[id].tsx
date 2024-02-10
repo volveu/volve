@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { PageLayout } from "../../components/Layout";
 import { api } from "../../utils/api";
-import { LoadingPage } from "../../components/Loading";
+import { LoadingPage, LoadingSpinner } from "../../components/Loading";
 import ActivityCard from "../../components/ActivityCard";
 
 const Npo = () => {
@@ -77,13 +77,24 @@ const Npo = () => {
 
         <div className="text-slate-200">Opportunities</div>
         <div className="py-2" />
-        <div className="flex flex-col gap-[15px]">
+        {/* <div className="flex flex-col gap-[15px]">
           {isActivitiesLoading ? (
             <LoadingPage />
           ) : (
             activities?.map((activity) => (
               <ActivityCard key={activity.id} activity={activity} />
             ))
+          )}
+        </div> */}
+        <div className="flex max-h-[50vh] flex-col gap-3 overflow-scroll">
+          {isActivitiesLoading ? (
+            <LoadingSpinner />
+          ) : activities?.length ? (
+            activities.map((a) => <ActivityCard key={a.id} activity={a} />)
+          ) : (
+            <div className="my-2 rounded-md bg-slate-600 p-2 text-center text-sm lowercase text-slate-200 opacity-80">
+              seems like you there are no upcoming activities
+            </div>
           )}
         </div>
       </div>
