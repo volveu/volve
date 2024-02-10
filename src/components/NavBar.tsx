@@ -75,14 +75,20 @@ const NavBar = () => {
         {session && (
           <>
             <div className="flex flex-row items-start py-5">
-              <Image
+              <img
+                onClick={handleViewProfile}
+                className="h-16 w-16 cursor-pointer rounded-full border-2 hover:border-blue-200"
+                src={session.user.image ?? "https://picsum.photos/300/300"}
+                alt={`profile pic`}
+              />
+              {/* <Image
                 onClick={handleViewProfile}
                 className="h-16 w-16 cursor-pointer rounded-full border-2 hover:border-blue-200"
                 src={"https://picsum.photos/300/300"}
                 alt={`profile pic`}
                 height={30}
                 width={30}
-              />
+              /> */}
               <div className="ml-2 flex flex-col items-start">
                 <div
                   onClick={handleViewProfile}

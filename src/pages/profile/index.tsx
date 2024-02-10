@@ -43,6 +43,7 @@ const ProfilePage: NextPage = () => {
   };
 
   const { name, email, role, aboutMe, phoneNum, image: imageURL } = userData;
+  // toast.error(imageURL, { id: "imageURL" });
   return (
     <>
       <Head>
@@ -50,14 +51,26 @@ const ProfilePage: NextPage = () => {
       </Head>
       <PageLayout>
         <div className="overscroll-y-scroll relative h-48 w-full bg-slate-700 md:max-w-2xl">
-          <Image
+          <img
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+            src={false || "/assets/profile-icon.jpg"}
+            alt={`${name ?? ""}'s profile pic`}
+            className="absolute bottom-0 left-0 -mb-[64px] ml-4 h-24 w-24 rounded-md rounded-t-lg border border-slate-400 bg-black bg-slate-200 object-contain hover:scale-105 sm:h-48 sm:w-48"
+          />
+          {/* <img
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+            src={imageURL || "/public/assets/profile-icon.jpeg"}
+            alt={`${name ?? ""}'s profile pic`}
+            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-md border border-slate-400 bg-black"
+          /> */}
+          {/* <Image
             // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
             src={imageURL || "https://picsum.photos/300/300"}
             alt={`${name ?? ""}'s profile pic`}
             width={128}
             height={128}
             className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-md border border-slate-400 bg-black"
-          />
+          /> */}
         </div>
         {/* spacer */}
         <div className="p-2">

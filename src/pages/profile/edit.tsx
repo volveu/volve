@@ -8,6 +8,7 @@ import { type z } from "zod";
 import { signIn, useSession } from "next-auth/react";
 import { LoadingPage } from "~/components/Loading";
 import { type User, user_z } from "types";
+import { useRouter } from "next/router";
 
 const updateInfoSchema_z = user_z.pick({
   name: true,
@@ -20,6 +21,7 @@ type UpdateUserSchemeData = z.infer<typeof updateInfoSchema_z>;
 
 const EditProfile = () => {
   // session is `null` until nextauth fetches user's session data
+  const router = useRouter();
   const { data: session, update: updateSession } = useSession({
     required: true,
     onUnauthenticated() {
@@ -47,6 +49,9 @@ const EditProfile = () => {
       //   const { name, email, image } = newUserData;
       //   const newUserDataForSession = { name, email, image };
       void updateSession(newUserData);
+      if (confirm("Go to view user profile?")) {
+        void router.push("/profile");
+      }
     },
     onError: () => {
       toast.error(`Failed to update user`);
