@@ -79,9 +79,9 @@ export default function Home() {
                     />
                   ))
                 ) : (
-                  <p className="text-xl font-semibold text-white">
-                    You have no upcoming activities
-                  </p>
+                  <div className="my-2 rounded-md bg-slate-600 p-2 text-center text-sm lowercase text-slate-200 opacity-80">
+                    seems like you have no upcoming activities
+                  </div>
                 )}
               </div>
             </div>
@@ -99,9 +99,9 @@ export default function Home() {
                     <ActivityCard key={activity.id} activity={activity} />
                   ))
                 ) : (
-                  <p className="text-xl font-semibold text-white">
-                    You have no upcoming activities
-                  </p>
+                  <div className="my-2 rounded-md bg-slate-600 p-2 text-center text-sm lowercase text-slate-200 opacity-80">
+                    seems like there is no upcoming activities
+                  </div>
                 )}
               </div>
             </div>
