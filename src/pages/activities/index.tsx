@@ -146,7 +146,7 @@ const Filters = ({
     <div className="mt-[12px] flex w-full flex-row gap-[12px]">
       <select
         onChange={(e) => setFilters({ ...filters, npo: e.target.value })}
-        className="block rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+        className="block max-w-[125px] rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
       >
         <option selected={filters.npo === "" || filters.npo === "Any NPOs"}>
           Any NPOs
@@ -166,7 +166,7 @@ const Filters = ({
       </select>
       <select
         onChange={(e) => setFilters({ ...filters, tag: e.target.value })}
-        className="block rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+        className="block max-w-[125px] rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
       >
         <option selected={filters.tag === "" || filters.tag === "All tags"}>
           All tags
