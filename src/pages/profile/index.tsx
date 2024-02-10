@@ -5,7 +5,6 @@ import { PageLayout } from "~/components/Layout";
 import { signIn, useSession } from "next-auth/react";
 import { LoadingPage, LoadingSpinner } from "~/components/Loading";
 import Link from "next/link";
-import type { UserRole } from "types";
 import toast from "react-hot-toast";
 import { api } from "~/utils/api";
 import { BlockedBadge } from "~/assets/BlockedBadge";
@@ -19,7 +18,14 @@ const ProfilePage: NextPage = () => {
     },
   });
 
-  if (!session) {
+  console.warn("session", session);
+
+  const { data: usrData, isLoading } = api.user.getUserByID.useQuery(
+    { id: session?.user?.id ?? "" },
+    { enabled: session?.user?.id != undefined && session?.user?.id != "" },
+  );
+
+  if (!session?.user?.id || isLoading) {
     return (
       <>
         <Head>
@@ -32,76 +38,71 @@ const ProfilePage: NextPage = () => {
     );
   }
 
-  const userData = session.user as {
-    id: string;
-    name: string;
-    email: string;
-    role: UserRole;
-    aboutMe: string | null;
-    phoneNum: string | null;
-    image: string | null;
-  };
+  if (!usrData) {
+    return (
+      <>
+        <Head>
+          <title>Profile</title>
+        </Head>
+        <PageLayout>
+          <div className="p-4">
+            Sorry we are experiencing some issues loading the user, please try
+            again later
+          </div>
+        </PageLayout>
+      </>
+    );
+  }
 
-  const { name, email, role, aboutMe, phoneNum, image: imageURL } = userData;
-  // toast.error(imageURL, { id: "imageURL" });
+  const {
+    name,
+    email,
+    role,
+    aboutMe,
+    phoneNum,
+    image: imageURL,
+    id: userId,
+  } = usrData;
   return (
     <>
       <Head>
         <title>Profile</title>
       </Head>
       <PageLayout>
-        <div className="overscroll-y-scroll relative h-48 w-full bg-slate-700 md:max-w-2xl">
+        <div className="overscroll-y-scroll relative flex w-full flex-col items-start p-4 md:max-w-2xl">
           <img
             // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-            src={false || "/assets/profile-icon.jpg"}
+            src={imageURL || "/assets/profile-icon.jpg"}
             alt={`${name ?? ""}'s profile pic`}
-            className="absolute bottom-0 left-0 -mb-[64px] ml-4 h-24 w-24 rounded-md rounded-t-lg border border-slate-400 bg-black bg-slate-200 object-contain hover:scale-105 sm:h-48 sm:w-48"
+            className="h-24 w-24 rounded-md rounded-t-lg border border-slate-400 bg-black bg-slate-200 object-contain hover:scale-105 sm:h-36 sm:w-36"
           />
-          {/* <img
-            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-            src={imageURL || "/public/assets/profile-icon.jpeg"}
-            alt={`${name ?? ""}'s profile pic`}
-            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-md border border-slate-400 bg-black"
-          /> */}
-          {/* <Image
-            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-            src={imageURL || "https://picsum.photos/300/300"}
-            alt={`${name ?? ""}'s profile pic`}
-            width={128}
-            height={128}
-            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-md border border-slate-400 bg-black"
-          /> */}
-        </div>
-        {/* spacer */}
-        <div className="p-2">
-          <div className="relative h-[64px]">
-            <div className="absolute right-0 top-0 m-2 p-2">
-              <Link
-                href="/profile/edit"
-                className="rounded-md text-neutral-400 underline"
-              >
-                edit profile
-              </Link>
-            </div>
-          </div>
-          <div className="p-4">
-            <div className="text-2xl font-bold">{name}</div>
-            <div className="">{email}</div>
-            {session.user.role == "ADMIN" && (
-              <div className="mt-1 inline-block rounded bg-gray-200 px-2 text-blue-600">
-                administrator
-              </div>
-            )}
-            <div className="py-2" />
-            <AwardBadgesForHours userId={userData.id} />
-            <div className="py-1" />
-            <AwardBadgesForNPOsHelped userId={userData.id} />
+          <div className="absolute right-0 top-0 m-2 p-4">
+            <Link
+              href="/profile/edit"
+              className="rounded-md text-neutral-400 underline"
+            >
+              edit profile
+            </Link>
           </div>
           <div className="py-1" />
-          <hr className="h-px border-0 bg-gray-700" />
+          <div className="text-2xl font-bold">{name}</div>
+          <div className="">{email}</div>
+          {session.user.role == "ADMIN" && (
+            <div className="mt-1 inline-block rounded bg-gray-200 px-2 text-blue-600">
+              administrator
+            </div>
+          )}
+          <div className="py-2" />
+          <AwardBadgesForHours userId={userId} />
+          <div className="py-1" />
+          <AwardBadgesForNPOsHelped userId={userId} />
+        </div>
+        <div className="py-1" />
+        <hr className="h-px border-0 bg-gray-700" />
+        <div className="px-2">
           <div className="py-3" />
           <div className="border-px rounded-2xl border-solid border-slate-400 bg-slate-800 p-4">
-            <MyImpact userId={userData.id} />
+            <MyImpact userId={userId} />
           </div>
           <div className="py-2" />
 
