@@ -26,11 +26,11 @@ export default function Home() {
       {isLoggedIn ? (
         <PageLayout>
           <div className="m-auto max-w-[90vw]">
-            <p className="py-4 pt-10 text-2xl font-bold tracking-tight text-white">
+            <p className="pb-2 pt-10 text-xl font-bold tracking-tight text-white">
               Welcome {session?.user.name},
             </p>
 
-            <figure className="mx-auto max-w-screen-md pt-5 text-center">
+            <figure className="mx-auto max-w-screen-md rounded-lg bg-slate-600 p-4 pt-5 text-center">
               <svg
                 className="mx-auto mb-3 h-10 w-10 text-gray-400 dark:text-gray-600"
                 aria-hidden="true"
@@ -41,11 +41,12 @@ export default function Home() {
                 <path d="M6 0H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v1a3 3 0 0 1-3 3H2a1 1 0 0 0 0 2h1a5.006 5.006 0 0 0 5-5V2a2 2 0 0 0-2-2Zm10 0h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v1a3 3 0 0 1-3 3h-1a1 1 0 0 0 0 2h1a5.006 5.006 0 0 0 5-5V2a2 2 0 0 0-2-2Z" />
               </svg>
               <blockquote>
-                <p className="text-2xl font-medium italic text-gray-900 dark:text-white">
+                <p className="text-xl font-medium italic text-gray-900 dark:text-slate-100">
                   “The best way to find yourself is to lose yourself in the
                   service of others.”
                 </p>
               </blockquote>
+              <div className="py-2" />
               <figcaption className="mt-6 flex items-center justify-center space-x-3 rtl:space-x-reverse">
                 <img
                   className="h-6 w-6 rounded-full"
@@ -53,7 +54,7 @@ export default function Home() {
                   alt="profile picture"
                 />
                 <div className="flex items-center divide-x-2 divide-gray-500 rtl:divide-x-reverse dark:divide-gray-700">
-                  <cite className="pe-3 font-medium text-gray-900 dark:text-white">
+                  <cite className="pe-3 font-medium text-gray-900 dark:text-slate-200">
                     Mahatma Gandhi
                   </cite>
                   <cite className="ps-3 text-sm text-gray-500 dark:text-gray-400">
@@ -64,10 +65,10 @@ export default function Home() {
             </figure>
 
             <div className="mt-10">
-              <p className="py-4 pt-10 text-2xl font-bold tracking-tight text-white">
+              <p className="py-2 pt-10 text-2xl font-bold tracking-tight text-white">
                 Your Upcoming Events
               </p>
-              <div className="flex max-h-[50vh] flex-col gap-[30px] overflow-scroll">
+              <div className="flex max-h-[50vh] flex-col gap-3 overflow-scroll">
                 {isFetchingUpcomingActivities ? (
                   <LoadingSpinner />
                 ) : upcomingActivities?.length ? (
@@ -78,18 +79,19 @@ export default function Home() {
                     />
                   ))
                 ) : (
-                  <p className="text-xl font-semibold text-white">
-                    You have no upcoming activities
-                  </p>
+                  <div className="my-2 rounded-md bg-slate-600 p-2 text-center text-sm lowercase text-slate-200 opacity-80">
+                    seems like you have no upcoming activities
+                  </div>
                 )}
               </div>
             </div>
 
+            <div className="py-2" />
             <div>
-              <p className="py-4 pt-10 text-2xl font-bold tracking-tight text-white">
-                Popular Events Now
+              <p className="py-2 pt-10 text-2xl font-bold tracking-tight text-white">
+                Featured Opportunities
               </p>
-              <div className="flex max-h-[500vh] flex-col gap-[30px] overflow-scroll">
+              <div className="flex max-h-[500vh] flex-col gap-3 overflow-scroll">
                 {isFetchingAllActivities ? (
                   <LoadingSpinner />
                 ) : allActivities?.length ? (
@@ -97,9 +99,9 @@ export default function Home() {
                     <ActivityCard key={activity.id} activity={activity} />
                   ))
                 ) : (
-                  <p className="text-xl font-semibold text-white">
-                    You have no upcoming activities
-                  </p>
+                  <div className="my-2 rounded-md bg-slate-600 p-2 text-center text-sm lowercase text-slate-200 opacity-80">
+                    seems like there is no upcoming activities
+                  </div>
                 )}
               </div>
             </div>

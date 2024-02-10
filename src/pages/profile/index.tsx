@@ -18,8 +18,6 @@ const ProfilePage: NextPage = () => {
     },
   });
 
-  console.warn("session", session);
-
   const { data: usrData, isLoading } = api.user.getUserByID.useQuery(
     { id: session?.user?.id ?? "" },
     { enabled: session?.user?.id != undefined && session?.user?.id != "" },
@@ -298,6 +296,13 @@ const MyImpact = ({ userId }: { userId: string }) => {
     });
   // TODO: change hardcoding
   const numOfRSVPs = 6;
+  const handleGenerateReport = () => {
+    toast("feature coming very soon!", {
+      id: "report",
+      icon: "📊",
+      style: { background: "black", color: "grey" },
+    });
+  };
   if (hrsLoading || numNPOsLoading) return <LoadingSpinner />;
   if (hrs == undefined || numOfNPOsParticipationCount == null) return null;
 
@@ -305,7 +310,10 @@ const MyImpact = ({ userId }: { userId: string }) => {
     <div>
       <div className="flex flex-row justify-between">
         <div className="pb-3 text-xl">My Impact</div>
-        <div className="cursor-pointer rounded-md text-neutral-400 underline">
+        <div
+          onClick={handleGenerateReport}
+          className="cursor-pointer rounded-md text-neutral-400 underline"
+        >
           generate report
         </div>
       </div>
