@@ -22,7 +22,7 @@ const ActivityCard = ({
   return (
     <div
       onClick={() => handleViewActivity(activity.id)}
-      className="relative w-[90vw] cursor-pointer rounded-lg border border-gray-200 bg-white p-4 py-6 shadow hover:opacity-90 md:w-[50vw] md:max-w-full md:px-9 dark:border-gray-700 dark:bg-gray-800"
+      className="relative w-[90vw] max-w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-4 py-6 shadow hover:opacity-90 md:px-9 dark:border-gray-700 dark:bg-gray-800"
     >
       <div className="mb-[5px] flex flex-row items-center gap-[7px]">
         <p className="text-md font-thin opacity-[75%]">{`${dayjs(activity.startTimestamp).format("DD-MMM HH:mm")} - ${dayjs(activity.endTimestamp).format("DD-MMM HH:mm")}`}</p>
