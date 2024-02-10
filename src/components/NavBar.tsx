@@ -38,11 +38,8 @@ const NavBar = () => {
   };
 
   return (
-    <>
-      <div
-        className="relative flex flex-row items-center justify-between bg-slate-800 py-3"
-        ref={node}
-      >
+    <div ref={node}>
+      <div className="relative flex flex-row items-center justify-between bg-slate-800 py-3">
         <button
           onClick={toggleDropdown}
           className="w-12 flex-grow-0 px-3 text-white hover:text-gray-300"
@@ -191,7 +188,7 @@ const NavBar = () => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
