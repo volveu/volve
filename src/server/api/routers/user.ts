@@ -38,6 +38,28 @@ const userUpdatePasswordInput_z = z.object({
 });
 
 export const userRouter = createTRPCRouter({
+  getUserByID: protectedProcedure
+    .input(z.object({ id: id_z }))
+    .query(async ({ ctx, input }) => {
+      if (!input.id)
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid ID" });
+      const user = await ctx.db.user.findUnique({
+        where: { id: input.id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          phoneNum: true,
+          image: true,
+          aboutMe: true,
+        },
+      });
+      if (user === null) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "User not found" });
+      }
+      return user;
+    }),
   getAll: adminProcedure.query(async ({ ctx }) => {
     const users = await ctx.db.user.findMany({
       select: { id: true, name: true, email: true, role: true, phoneNum: true },
